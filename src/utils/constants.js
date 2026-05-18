@@ -1,3 +1,15 @@
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  Layers,
+  FileText,
+  GraduationCap,
+  TrendingUp,
+  ClipboardList,
+  UserCog,
+} from "lucide-react";
+
 // Các role trong hệ thống
 export const ROLES = {
   ADMIN: "ADMIN",
@@ -23,6 +35,35 @@ export const ROLE_REDIRECT = {
   ADMIN_STAFF: "/staff",
   TEACHER: "/teacher",
   STUDENT: "/student",
+};
+
+// ===== MENU CHO TỪNG ROLE =====
+export const MENU_BY_ROLE = {
+  ADMIN: [
+    { to: "/admin", label: "Tổng quan", icon: LayoutDashboard },
+    { to: "/admin/users", label: "Quản lý người dùng", icon: Users },
+  ],
+  ACADEMIC_STAFF: [
+    { to: "/academic", label: "Tổng quan", icon: LayoutDashboard },
+    { to: "/academic/courses", label: "Khóa học", icon: BookOpen },
+    { to: "/academic/modules", label: "Modules", icon: Layers },
+    { to: "/academic/documents", label: "Tài liệu", icon: FileText },
+  ],
+  ADMIN_STAFF: [
+    { to: "/staff", label: "Tổng quan", icon: LayoutDashboard },
+    { to: "/staff/teachers", label: "Giáo viên", icon: GraduationCap },
+    { to: "/staff/students", label: "Học sinh", icon: Users },
+  ],
+  TEACHER: [
+    { to: "/teacher", label: "Tổng quan", icon: LayoutDashboard },
+    { to: "/teacher/courses", label: "Khóa học của tôi", icon: BookOpen },
+  ],
+  STUDENT: [
+    { to: "/student", label: "Tổng quan", icon: LayoutDashboard },
+    { to: "/student/courses", label: "Khóa học của tôi", icon: BookOpen },
+    { to: "/student/quizzes", label: "Lịch sử Quiz", icon: ClipboardList },
+    { to: "/student/progress", label: "Tiến độ", icon: TrendingUp },
+  ],
 };
 
 // Level của khóa học
