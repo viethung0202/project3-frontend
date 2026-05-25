@@ -157,6 +157,41 @@ export const getAcademicStats = async () => {
   return data;
 };
 
+// ===== TEACHER =====
+export const getTeacherStats = async () => {
+  const { data } = await axiosInstance.get("/teacher/stats");
+  return data;
+};
+
+export const getTeacherCourses = async () => {
+  const { data } = await axiosInstance.get("/teacher/courses");
+  return data;
+};
+
+export const getTeacherCourseEnrollments = async (courseId) => {
+  const { data } = await axiosInstance.get(
+    `/teacher/courses/${courseId}/enrollments`,
+  );
+  return data;
+};
+
+// ===== STUDENT =====
+export const selfEnroll = async (courseId) => {
+  // Backend tự fill studentId = req.user.id khi role = STUDENT
+  const { data } = await axiosInstance.post("/enrollments", { courseId });
+  return data;
+};
+
+export const getStudentStats = async () => {
+  const { data } = await axiosInstance.get("/student/stats");
+  return data;
+};
+
+export const getStudentCourses = async () => {
+  const { data } = await axiosInstance.get("/student/courses");
+  return data;
+};
+
 // ===== MODULES =====
 export const createModule = async ({ courseId, ...moduleData }) => {
   const { data } = await axiosInstance.post(

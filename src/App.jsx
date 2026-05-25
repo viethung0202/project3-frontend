@@ -11,6 +11,8 @@ import HomePage from "@/pages/public/HomePage";
 import LoginPage from "@/pages/public/LoginPage";
 import RegisterPage from "@/pages/public/RegisterPage";
 import ProfilePage from "@/pages/public/ProfilePage";
+import PublicCoursesPage from "@/pages/public/CoursesPage";
+import PublicCourseDetailPage from "@/pages/public/CourseDetailPage";
 
 // Dashboards
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -28,7 +30,14 @@ import TeachersPage from "@/pages/staff/TeachersPage";
 import StudentsPage from "@/pages/staff/StudentsPage";
 import EnrollmentsPage from "@/pages/staff/EnrollmentsPage";
 import TeacherDashboard from "@/pages/teacher/TeacherDashboard";
+import TeacherCoursesPage from "@/pages/teacher/TeacherCoursesPage";
+import TeacherCourseDetailPage from "@/pages/teacher/TeacherCourseDetailPage";
+import TeacherModuleDetailPage from "@/pages/teacher/TeacherModuleDetailPage";
 import StudentDashboard from "@/pages/student/StudentDashboard";
+import StudentCoursesPage from "@/pages/student/StudentCoursesPage";
+import StudentCourseDetailPage from "@/pages/student/StudentCourseDetailPage";
+import StudentModuleDetailPage from "@/pages/student/StudentModuleDetailPage";
+import StudentFlashcardStudyPage from "@/pages/student/StudentFlashcardStudyPage";
 
 // Common
 import ForbiddenPage from "@/pages/ForbiddenPage";
@@ -41,6 +50,8 @@ export default function Apps() {
         {/* Public routes */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/courses" element={<PublicCoursesPage />} />
+          <Route path="/courses/:id" element={<PublicCourseDetailPage />} />
           <Route
             path="/profile"
             element={
@@ -115,6 +126,15 @@ export default function Apps() {
           }
         >
           <Route index element={<TeacherDashboard />} />
+          <Route path="courses" element={<TeacherCoursesPage />} />
+          <Route
+            path="courses/:id"
+            element={<TeacherCourseDetailPage />}
+          />
+          <Route
+            path="modules/:id"
+            element={<TeacherModuleDetailPage />}
+          />
         </Route>
 
         {/* Student */}
@@ -127,6 +147,19 @@ export default function Apps() {
           }
         >
           <Route index element={<StudentDashboard />} />
+          <Route path="courses" element={<StudentCoursesPage />} />
+          <Route
+            path="courses/:id"
+            element={<StudentCourseDetailPage />}
+          />
+          <Route
+            path="modules/:id"
+            element={<StudentModuleDetailPage />}
+          />
+          <Route
+            path="flashcard-sets/:id"
+            element={<StudentFlashcardStudyPage />}
+          />
         </Route>
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="*" element={<NotFoundPage />} />
