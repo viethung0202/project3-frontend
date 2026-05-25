@@ -150,3 +150,174 @@ export const getStaffStats = async () => {
   const { data } = await axiosInstance.get("/staff/stats");
   return data;
 };
+
+// ===== ACADEMIC =====
+export const getAcademicStats = async () => {
+  const { data } = await axiosInstance.get("/academic/stats");
+  return data;
+};
+
+// ===== MODULES =====
+export const createModule = async ({ courseId, ...moduleData }) => {
+  const { data } = await axiosInstance.post(
+    `/courses/${courseId}/modules`,
+    moduleData,
+  );
+  return data;
+};
+
+export const updateModule = async ({ id, ...moduleData }) => {
+  const { data } = await axiosInstance.put(`/modules/${id}`, moduleData);
+  return data;
+};
+
+export const deleteModule = async (id) => {
+  const { data } = await axiosInstance.delete(`/modules/${id}`);
+  return data;
+};
+
+export const getModuleById = async (id) => {
+  const { data } = await axiosInstance.get(`/modules/${id}`);
+  return data;
+};
+
+// ===== LESSONS =====
+export const getModuleLessons = async (moduleId) => {
+  const { data } = await axiosInstance.get(`/modules/${moduleId}/lessons`);
+  return data;
+};
+
+export const createLesson = async ({ moduleId, ...lessonData }) => {
+  const { data } = await axiosInstance.post(
+    `/modules/${moduleId}/lessons`,
+    lessonData,
+  );
+  return data;
+};
+
+export const updateLesson = async ({ id, ...lessonData }) => {
+  const { data } = await axiosInstance.put(`/lessons/${id}`, lessonData);
+  return data;
+};
+
+export const deleteLesson = async (id) => {
+  const { data } = await axiosInstance.delete(`/lessons/${id}`);
+  return data;
+};
+
+// ===== FLASHCARD SETS =====
+export const getModuleFlashcardSets = async (moduleId) => {
+  const { data } = await axiosInstance.get(
+    `/modules/${moduleId}/flashcard-sets`,
+  );
+  return data;
+};
+
+export const getFlashcardSetById = async (id) => {
+  const { data } = await axiosInstance.get(`/flashcard-sets/${id}`);
+  return data;
+};
+
+export const createFlashcardSet = async ({ moduleId, ...setData }) => {
+  const { data } = await axiosInstance.post(
+    `/modules/${moduleId}/flashcard-sets`,
+    setData,
+  );
+  return data;
+};
+
+export const updateFlashcardSet = async ({ id, ...setData }) => {
+  const { data } = await axiosInstance.put(`/flashcard-sets/${id}`, setData);
+  return data;
+};
+
+export const deleteFlashcardSet = async (id) => {
+  const { data } = await axiosInstance.delete(`/flashcard-sets/${id}`);
+  return data;
+};
+
+// ===== FLASHCARDS =====
+export const createFlashcard = async ({ setId, formData }) => {
+  const { data } = await axiosInstance.post(
+    `/flashcard-sets/${setId}/flashcards`,
+    formData,
+  );
+  return data;
+};
+
+export const updateFlashcard = async ({ id, formData }) => {
+  const { data } = await axiosInstance.put(`/flashcards/${id}`, formData);
+  return data;
+};
+
+export const deleteFlashcard = async (id) => {
+  const { data } = await axiosInstance.delete(`/flashcards/${id}`);
+  return data;
+};
+
+// ===== QUIZZES =====
+export const getModuleQuizzes = async (moduleId) => {
+  const { data } = await axiosInstance.get(`/modules/${moduleId}/quizzes`);
+  return data;
+};
+
+export const getQuizById = async (id) => {
+  const { data } = await axiosInstance.get(`/quizzes/${id}`);
+  return data;
+};
+
+export const createQuiz = async ({ moduleId, ...quizData }) => {
+  const { data } = await axiosInstance.post(
+    `/modules/${moduleId}/quizzes`,
+    quizData,
+  );
+  return data;
+};
+
+export const updateQuiz = async ({ id, ...quizData }) => {
+  const { data } = await axiosInstance.put(`/quizzes/${id}`, quizData);
+  return data;
+};
+
+export const deleteQuiz = async (id) => {
+  const { data } = await axiosInstance.delete(`/quizzes/${id}`);
+  return data;
+};
+
+// ===== QUESTIONS =====
+export const createQuestion = async ({ quizId, ...questionData }) => {
+  const { data } = await axiosInstance.post(
+    `/quizzes/${quizId}/questions`,
+    questionData,
+  );
+  return data;
+};
+
+export const updateQuestion = async ({ id, ...questionData }) => {
+  const { data } = await axiosInstance.put(`/questions/${id}`, questionData);
+  return data;
+};
+
+export const deleteQuestion = async (id) => {
+  const { data } = await axiosInstance.delete(`/questions/${id}`);
+  return data;
+};
+
+// ===== ANSWERS =====
+export const createAnswer = async ({ questionId, ...answerData }) => {
+  const { data } = await axiosInstance.post(
+    `/questions/${questionId}/answers`,
+    answerData,
+  );
+  return data;
+};
+
+export const updateAnswer = async ({ id, ...answerData }) => {
+  const { data } = await axiosInstance.put(`/answers/${id}`, answerData);
+  return data;
+};
+
+export const deleteAnswer = async (id) => {
+  const { data } = await axiosInstance.delete(`/answers/${id}`);
+  return data;
+};

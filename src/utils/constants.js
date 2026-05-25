@@ -2,12 +2,9 @@ import {
   LayoutDashboard,
   Users,
   BookOpen,
-  Layers,
-  FileText,
   GraduationCap,
   TrendingUp,
   ClipboardList,
-  UserCog,
 } from "lucide-react";
 
 // Các role trong hệ thống
@@ -46,8 +43,6 @@ export const MENU_BY_ROLE = {
   ACADEMIC_STAFF: [
     { to: "/academic", label: "Tổng quan", icon: LayoutDashboard },
     { to: "/academic/courses", label: "Khóa học", icon: BookOpen },
-    { to: "/academic/modules", label: "Modules", icon: Layers },
-    { to: "/academic/documents", label: "Tài liệu", icon: FileText },
   ],
   ADMIN_STAFF: [
     { to: "/staff", label: "Tổng quan", icon: LayoutDashboard },

@@ -1,8 +1,17 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import CourseTeachersSection from "@/components/course/CourseTeachersSection";
+import ModuleFormDialog from "@/components/module/ModuleFormDialog";
+import DeleteModuleDialog from "@/components/module/DeleteModuleDialog";
 import {
   ChevronLeft,
   Pencil,
@@ -11,6 +20,8 @@ import {
   GraduationCap,
   Loader2,
   Plus,
+  MoreVertical,
+  Trash2,
 } from "lucide-react";
 import { useCourseDetail } from "@/hooks/useCourses";
 import { COURSE_LEVELS, COURSE_STATUS } from "@/utils/constants";
@@ -18,6 +29,20 @@ import { COURSE_LEVELS, COURSE_STATUS } from "@/utils/constants";
 export default function CourseDetailPage() {
   const { id } = useParams();
   const { data: course, isLoading } = useCourseDetail(id);
+
+  const [moduleFormTarget, setModuleFormTarget] = useState(null);
+  const [moduleFormOpen, setModuleFormOpen] = useState(false);
+  const [moduleDeleteTarget, setModuleDeleteTarget] = useState(null);
+
+  const openCreateModule = () => {
+    setModuleFormTarget(null);
+    setModuleFormOpen(true);
+  };
+
+  const openEditModule = (module) => {
+    setModuleFormTarget(module);
+    setModuleFormOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -106,11 +131,9 @@ export default function CourseDetailPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Modules</CardTitle>
-          <Button size="sm" asChild>
-            <Link to={`/academic/courses/${id}/modules/create`}>
-              <Plus className="mr-2 h-4 w-4" />
-              Thêm module
-            </Link>
+          <Button size="sm" onClick={openCreateModule}>
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm module
           </Button>
         </CardHeader>
         <CardContent>
@@ -121,22 +144,44 @@ export default function CourseDetailPage() {
                   key={module.id}
                   className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-medium">
+                  <Link
+                    to={`/academic/modules/${module.id}`}
+                    className="flex items-center gap-3 min-w-0 flex-1"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-medium flex-shrink-0">
                       {idx + 1}
                     </div>
-                    <div>
-                      <p className="font-medium">{module.title}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium truncate hover:text-blue-600 transition-colors">
+                        {module.title}
+                      </p>
                       {module.description && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 truncate">
                           {module.description}
                         </p>
                       )}
                     </div>
-                  </div>
-                  <Button size="sm" variant="ghost" asChild>
-                    <Link to={`/academic/modules/${module.id}`}>Quản lý</Link>
-                  </Button>
+                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openEditModule(module)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Sửa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600"
+                        onClick={() => setModuleDeleteTarget(module)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Xóa
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ))}
             </div>
@@ -144,16 +189,28 @@ export default function CourseDetailPage() {
             <div className="text-center py-8">
               <Layers className="h-12 w-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 mb-4">Chưa có module nào</p>
-              <Button asChild>
-                <Link to={`/academic/courses/${id}/modules/create`}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Tạo module đầu tiên
-                </Link>
+              <Button onClick={openCreateModule}>
+                <Plus className="mr-2 h-4 w-4" />
+                Tạo module đầu tiên
               </Button>
             </div>
           )}
         </CardContent>
       </Card>
+
+      <ModuleFormDialog
+        courseId={id}
+        module={moduleFormTarget}
+        open={moduleFormOpen}
+        onClose={() => setModuleFormOpen(false)}
+      />
+
+      <DeleteModuleDialog
+        courseId={id}
+        module={moduleDeleteTarget}
+        open={!!moduleDeleteTarget}
+        onClose={() => setModuleDeleteTarget(null)}
+      />
     </div>
   );
 }

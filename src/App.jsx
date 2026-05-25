@@ -20,6 +20,9 @@ import CoursesPage from "@/pages/academic/CoursesPage";
 import CreateCoursePage from "@/pages/academic/CreateCoursePage";
 import CourseDetailPage from "@/pages/academic/CourseDetailPage";
 import EditCoursePage from "@/pages/academic/EditCoursePage";
+import ModuleDetailPage from "@/pages/academic/ModuleDetailPage";
+import FlashcardSetDetailPage from "@/pages/academic/FlashcardSetDetailPage";
+import QuizDetailPage from "@/pages/academic/QuizDetailPage";
 import StaffDashboard from "@/pages/staff/StaffDashboard";
 import TeachersPage from "@/pages/staff/TeachersPage";
 import StudentsPage from "@/pages/staff/StudentsPage";
@@ -79,6 +82,12 @@ export default function Apps() {
           <Route path="courses/create" element={<CreateCoursePage />} />
           <Route path="courses/:id" element={<CourseDetailPage />} />
           <Route path="courses/:id/edit" element={<EditCoursePage />} />
+          <Route path="modules/:id" element={<ModuleDetailPage />} />
+          <Route
+            path="flashcard-sets/:id"
+            element={<FlashcardSetDetailPage />}
+          />
+          <Route path="quizzes/:id" element={<QuizDetailPage />} />
         </Route>
 
         {/* Admin Staff (Hành chính) */}
