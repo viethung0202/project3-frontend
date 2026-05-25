@@ -222,16 +222,16 @@ export const getModuleLessons = async (moduleId) => {
   return data;
 };
 
-export const createLesson = async ({ moduleId, ...lessonData }) => {
+export const createLesson = async ({ moduleId, formData }) => {
   const { data } = await axiosInstance.post(
     `/modules/${moduleId}/lessons`,
-    lessonData,
+    formData,
   );
   return data;
 };
 
-export const updateLesson = async ({ id, ...lessonData }) => {
-  const { data } = await axiosInstance.put(`/lessons/${id}`, lessonData);
+export const updateLesson = async ({ id, formData }) => {
+  const { data } = await axiosInstance.put(`/lessons/${id}`, formData);
   return data;
 };
 

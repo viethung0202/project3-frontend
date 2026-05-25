@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
@@ -79,56 +78,6 @@ export default function HomePage() {
               label="Hài lòng"
               color="text-purple-600"
             />
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURED COURSES */}
-      <section className="py-16 md:py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-              Khóa học nổi bật
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Lựa chọn khóa học phù hợp với trình độ và mục tiêu của bạn
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <CourseCard
-              level="Cơ bản"
-              levelColor="bg-green-100 text-green-700"
-              title="Tiếng Anh giao tiếp cơ bản"
-              description="Khóa học dành cho người mới bắt đầu, xây dựng nền tảng giao tiếp tự tin."
-              duration="8 tuần"
-              students="1,200"
-            />
-            <CourseCard
-              level="Trung cấp"
-              levelColor="bg-yellow-100 text-yellow-700"
-              title="IELTS 5.5 - 6.5"
-              description="Lộ trình luyện thi IELTS bài bản, cải thiện cả 4 kỹ năng."
-              duration="12 tuần"
-              students="850"
-            />
-            <CourseCard
-              level="Nâng cao"
-              levelColor="bg-red-100 text-red-700"
-              title="Business English"
-              description="Tiếng Anh thương mại cho người đi làm, phỏng vấn, đàm phán."
-              duration="10 tuần"
-              students="620"
-            />
-          </div>
-
-          <div className="text-center mt-10">
-            <Button asChild variant="outline" size="lg">
-              <Link to="/courses">
-                Xem tất cả khóa học
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
           </div>
         </div>
       </section>
@@ -215,41 +164,6 @@ function StatItem({ icon: Icon, value, label, color }) {
       </div>
       <div className="text-sm text-gray-600">{label}</div>
     </div>
-  );
-}
-
-function CourseCard({
-  level,
-  levelColor,
-  title,
-  description,
-  duration,
-  students,
-}) {
-  return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      {/* Placeholder thumbnail */}
-      <div className="h-40 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-        <BookOpen className="h-16 w-16 text-white/30" />
-      </div>
-
-      <CardContent className="p-5 space-y-3">
-        <Badge className={`${levelColor} hover:${levelColor}`}>{level}</Badge>
-        <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
-
-        <div className="flex items-center justify-between pt-3 border-t text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>{duration}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-4 w-4" />
-            <span>{students} học viên</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

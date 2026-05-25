@@ -132,6 +132,16 @@ export default function StudentFlashcardStudyPage() {
     );
   }
 
+  // Guard: `order` chưa sync với `originalCards` (useEffect set order chạy sau
+  // render đầu tiên). Tránh card = undefined gây crash.
+  if (!card && !completed) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header */}

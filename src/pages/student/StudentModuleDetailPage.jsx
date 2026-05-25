@@ -90,17 +90,30 @@ export default function StudentModuleDetailPage() {
                     </h3>
                   </div>
 
-                  {lesson.videoUrl && (
-                    <a
-                      href={lesson.videoUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline mb-2"
-                    >
-                      <Video className="h-4 w-4" />
-                      Xem video bài giảng
-                    </a>
-                  )}
+                  <div className="flex flex-wrap gap-3 mb-2">
+                    {lesson.videoUrl && (
+                      <a
+                        href={lesson.videoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                      >
+                        <Video className="h-4 w-4" />
+                        Xem video bài giảng
+                      </a>
+                    )}
+                    {lesson.pdfUrl && (
+                      <a
+                        href={lesson.pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-red-600 hover:underline"
+                      >
+                        <FileText className="h-4 w-4" />
+                        Mở tài liệu PDF
+                      </a>
+                    )}
+                  </div>
 
                   {lesson.content && (
                     <div className="text-sm text-gray-700 whitespace-pre-wrap mt-2 prose prose-sm max-w-none">
@@ -108,7 +121,18 @@ export default function StudentModuleDetailPage() {
                     </div>
                   )}
 
-                  {!lesson.videoUrl && !lesson.content && (
+                  {lesson.pdfUrl && (
+                    <div className="mt-3 rounded-lg overflow-hidden border bg-gray-50">
+                      <iframe
+                        src={lesson.pdfUrl}
+                        title={`PDF - ${lesson.title}`}
+                        className="w-full"
+                        style={{ height: 500 }}
+                      />
+                    </div>
+                  )}
+
+                  {!lesson.videoUrl && !lesson.content && !lesson.pdfUrl && (
                     <p className="text-xs text-gray-400 italic">
                       Bài học chưa có nội dung
                     </p>

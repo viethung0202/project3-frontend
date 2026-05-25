@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCoursesList } from "@/hooks/useCourses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,7 @@ import DeleteCourseDialog from "@/components/course/DeleteCourseDialog";
 import { COURSE_LEVELS, COURSE_STATUS } from "@/utils/constants";
 
 export default function CoursesPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -146,12 +147,17 @@ export default function CoursesPage() {
                 {courses.map((course) => (
                   <TableRow key={course.id}>
                     <TableCell>
-                      <div className="font-medium">{course.title}</div>
-                      {course.description && (
-                        <div className="text-xs text-gray-500 line-clamp-1 mt-0.5">
-                          {course.description}
-                        </div>
-                      )}
+                      <Link
+                        to={`/academic/courses/${course.id}`}
+                        className="block hover:text-blue-600 transition-colors"
+                      >
+                        <div className="font-medium">{course.title}</div>
+                        {course.description && (
+                          <div className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                            {course.description}
+                          </div>
+                        )}
+                      </Link>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">
@@ -171,17 +177,21 @@ export default function CoursesPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academic/courses/${course.id}`}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              Chi tiết
-                            </Link>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(`/academic/courses/${course.id}`)
+                            }
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Chi tiết
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academic/courses/${course.id}/edit`}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Sửa
-                            </Link>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(`/academic/courses/${course.id}/edit`)
+                            }
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Sửa
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 focus:text-red-600"
