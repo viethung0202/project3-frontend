@@ -53,6 +53,7 @@ export const MENU_BY_ROLE = {
     { to: "/staff", label: "Tổng quan", icon: LayoutDashboard },
     { to: "/staff/teachers", label: "Giáo viên", icon: GraduationCap },
     { to: "/staff/students", label: "Học sinh", icon: Users },
+    { to: "/staff/enrollments", label: "Enrollment", icon: ClipboardList },
   ],
   TEACHER: [
     { to: "/teacher", label: "Tổng quan", icon: LayoutDashboard },

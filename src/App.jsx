@@ -10,15 +10,20 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import HomePage from "@/pages/public/HomePage";
 import LoginPage from "@/pages/public/LoginPage";
 import RegisterPage from "@/pages/public/RegisterPage";
+import ProfilePage from "@/pages/public/ProfilePage";
 
 // Dashboards
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import UsersPage from "@/pages/admin/UsersPage";
 import AcademicDashboard from "@/pages/academic/AcademicDashboard";
 import CoursesPage from "@/pages/academic/CoursesPage";
 import CreateCoursePage from "@/pages/academic/CreateCoursePage";
 import CourseDetailPage from "@/pages/academic/CourseDetailPage";
 import EditCoursePage from "@/pages/academic/EditCoursePage";
 import StaffDashboard from "@/pages/staff/StaffDashboard";
+import TeachersPage from "@/pages/staff/TeachersPage";
+import StudentsPage from "@/pages/staff/StudentsPage";
+import EnrollmentsPage from "@/pages/staff/EnrollmentsPage";
 import TeacherDashboard from "@/pages/teacher/TeacherDashboard";
 import StudentDashboard from "@/pages/student/StudentDashboard";
 
@@ -33,6 +38,14 @@ export default function Apps() {
         {/* Public routes */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Auth routes */}
@@ -49,6 +62,7 @@ export default function Apps() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<UsersPage />} />
         </Route>
 
         {/* Academic Staff (Giáo vụ) */}
@@ -77,6 +91,9 @@ export default function Apps() {
           }
         >
           <Route index element={<StaffDashboard />} />
+          <Route path="teachers" element={<TeachersPage />} />
+          <Route path="students" element={<StudentsPage />} />
+          <Route path="enrollments" element={<EnrollmentsPage />} />
         </Route>
 
         {/* Teacher */}

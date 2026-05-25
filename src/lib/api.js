@@ -15,6 +15,19 @@ export const logout = async () => {
   return response.data;
 };
 
+export const changePassword = async ({ currentPassword, newPassword }) => {
+  const { data } = await axiosInstance.post("/auth/change-password", {
+    currentPassword,
+    newPassword,
+  });
+  return data;
+};
+
+export const updateProfile = async (formData) => {
+  const { data } = await axiosInstance.put("/auth/me", formData);
+  return data;
+};
+
 export const getAuthUser = async () => {
   try {
     const res = await axiosInstance.get("/auth/me");
@@ -76,7 +89,7 @@ export const removeCourseTeacher = async ({ courseId, teacherId }) => {
   return data;
 };
 
-// ===== USERS (cho phần list giáo viên) =====
+// ===== USERS =====
 export const getUsers = async (params = {}) => {
   const { data } = await axiosInstance.get("/users", { params });
   return data;
@@ -92,12 +105,48 @@ export const createUser = async (userData) => {
   return data;
 };
 
-export const updateUser = async ({ id, ...userData }) => {
-  const { data } = await axiosInstance.put(`/users/${id}`, userData);
+export const updateUser = async ({ id, formData }) => {
+  const { data } = await axiosInstance.put(`/users/${id}`, formData);
   return data;
 };
 
 export const deleteUser = async (id) => {
   const { data } = await axiosInstance.delete(`/users/${id}`);
+  return data;
+};
+
+export const toggleUserActive = async (id) => {
+  const { data } = await axiosInstance.put(`/users/${id}/toggle-active`);
+  return data;
+};
+
+// ===== ADMIN =====
+export const getAdminStats = async () => {
+  const { data } = await axiosInstance.get("/admin/stats");
+  return data;
+};
+
+// ===== ENROLLMENTS =====
+export const getEnrollments = async (params = {}) => {
+  const { data } = await axiosInstance.get("/enrollments", { params });
+  return data;
+};
+
+export const createEnrollment = async ({ studentId, courseId }) => {
+  const { data } = await axiosInstance.post("/enrollments", {
+    studentId,
+    courseId,
+  });
+  return data;
+};
+
+export const deleteEnrollment = async (id) => {
+  const { data } = await axiosInstance.delete(`/enrollments/${id}`);
+  return data;
+};
+
+// ===== STAFF =====
+export const getStaffStats = async () => {
+  const { data } = await axiosInstance.get("/staff/stats");
   return data;
 };
