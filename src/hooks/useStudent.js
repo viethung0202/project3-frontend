@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getStudentStats, getStudentCourses } from "@/lib/api";
+import {
+  getStudentStats,
+  getStudentCourses,
+  getStudentQuizHistory,
+} from "@/lib/api";
 
 export const useStudentStats = () => {
   return useQuery({
@@ -13,6 +17,14 @@ export const useStudentCourses = () => {
   return useQuery({
     queryKey: ["my-enrollments"],
     queryFn: getStudentCourses,
+    select: (resp) => resp?.data ?? [],
+  });
+};
+
+export const useStudentQuizHistory = () => {
+  return useQuery({
+    queryKey: ["student-quiz-history"],
+    queryFn: getStudentQuizHistory,
     select: (resp) => resp?.data ?? [],
   });
 };

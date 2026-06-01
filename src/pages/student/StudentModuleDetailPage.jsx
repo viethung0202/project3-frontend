@@ -12,6 +12,7 @@ import {
   Award,
   Play,
   Sparkles,
+  History,
 } from "lucide-react";
 import { useModuleDetail } from "@/hooks/useModules";
 import { useModuleLessons } from "@/hooks/useLessons";
@@ -237,10 +238,20 @@ export default function StudentModuleDetailPage() {
                       </div>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" disabled>
-                    <Play className="mr-2 h-4 w-4" />
-                    Làm bài (S5)
-                  </Button>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Button size="sm" variant="outline" asChild>
+                      <Link to={`/student/quizzes/${q.id}/history`}>
+                        <History className="mr-1.5 h-3.5 w-3.5" />
+                        Lịch sử
+                      </Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                      <Link to={`/student/quizzes/${q.id}`}>
+                        <Play className="mr-2 h-4 w-4" />
+                        Làm bài
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

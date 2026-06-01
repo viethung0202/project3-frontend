@@ -192,6 +192,11 @@ export const getStudentCourses = async () => {
   return data;
 };
 
+export const getStudentQuizHistory = async () => {
+  const { data } = await axiosInstance.get("/student/quiz-history");
+  return data;
+};
+
 // ===== MODULES =====
 export const createModule = async ({ courseId, ...moduleData }) => {
   const { data } = await axiosInstance.post(
@@ -335,6 +340,44 @@ export const updateQuestion = async ({ id, ...questionData }) => {
 
 export const deleteQuestion = async (id) => {
   const { data } = await axiosInstance.delete(`/questions/${id}`);
+  return data;
+};
+
+// ===== QUIZ ATTEMPTS (student) =====
+export const startQuizAttempt = async (quizId) => {
+  const { data } = await axiosInstance.post(`/quizzes/${quizId}/attempts`);
+  return data;
+};
+
+export const getMyQuizAttempts = async (quizId) => {
+  const { data } = await axiosInstance.get(`/quizzes/${quizId}/my-attempts`);
+  return data;
+};
+
+export const getAttempt = async (attemptId) => {
+  const { data } = await axiosInstance.get(`/attempts/${attemptId}`);
+  return data;
+};
+
+export const saveAttemptAnswer = async ({
+  attemptId,
+  questionId,
+  selectedAnswers,
+}) => {
+  const { data } = await axiosInstance.post(`/attempts/${attemptId}/answers`, {
+    questionId,
+    selectedAnswers,
+  });
+  return data;
+};
+
+export const submitAttempt = async (attemptId) => {
+  const { data } = await axiosInstance.post(`/attempts/${attemptId}/submit`);
+  return data;
+};
+
+export const getAttemptResult = async (attemptId) => {
+  const { data } = await axiosInstance.get(`/attempts/${attemptId}/result`);
   return data;
 };
 

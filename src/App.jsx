@@ -13,6 +13,7 @@ import RegisterPage from "@/pages/public/RegisterPage";
 import ProfilePage from "@/pages/public/ProfilePage";
 import PublicCoursesPage from "@/pages/public/CoursesPage";
 import PublicCourseDetailPage from "@/pages/public/CourseDetailPage";
+import AboutPage from "@/pages/public/AboutPage";
 
 // Dashboards
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -38,6 +39,10 @@ import StudentCoursesPage from "@/pages/student/StudentCoursesPage";
 import StudentCourseDetailPage from "@/pages/student/StudentCourseDetailPage";
 import StudentModuleDetailPage from "@/pages/student/StudentModuleDetailPage";
 import StudentFlashcardStudyPage from "@/pages/student/StudentFlashcardStudyPage";
+import StudentQuizPage from "@/pages/student/StudentQuizPage";
+import StudentQuizResultPage from "@/pages/student/StudentQuizResultPage";
+import StudentQuizHistoryPage from "@/pages/student/StudentQuizHistoryPage";
+import StudentAllQuizHistoryPage from "@/pages/student/StudentAllQuizHistoryPage";
 
 // Common
 import ForbiddenPage from "@/pages/ForbiddenPage";
@@ -52,6 +57,7 @@ export default function Apps() {
           <Route path="/" element={<HomePage />} />
           <Route path="/courses" element={<PublicCoursesPage />} />
           <Route path="/courses/:id" element={<PublicCourseDetailPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route
             path="/profile"
             element={
@@ -159,6 +165,16 @@ export default function Apps() {
           <Route
             path="flashcard-sets/:id"
             element={<StudentFlashcardStudyPage />}
+          />
+          <Route path="quizzes" element={<StudentAllQuizHistoryPage />} />
+          <Route path="quizzes/:id" element={<StudentQuizPage />} />
+          <Route
+            path="quizzes/:id/history"
+            element={<StudentQuizHistoryPage />}
+          />
+          <Route
+            path="attempts/:id/result"
+            element={<StudentQuizResultPage />}
           />
         </Route>
         <Route path="/forbidden" element={<ForbiddenPage />} />
