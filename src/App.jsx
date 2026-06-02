@@ -43,6 +43,7 @@ import StudentQuizPage from "@/pages/student/StudentQuizPage";
 import StudentQuizResultPage from "@/pages/student/StudentQuizResultPage";
 import StudentQuizHistoryPage from "@/pages/student/StudentQuizHistoryPage";
 import StudentAllQuizHistoryPage from "@/pages/student/StudentAllQuizHistoryPage";
+import StudentProgressPage from "@/pages/student/StudentProgressPage";
 
 // Common
 import ForbiddenPage from "@/pages/ForbiddenPage";
@@ -176,6 +177,7 @@ export default function Apps() {
             path="attempts/:id/result"
             element={<StudentQuizResultPage />}
           />
+          <Route path="progress" element={<StudentProgressPage />} />
         </Route>
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="*" element={<NotFoundPage />} />

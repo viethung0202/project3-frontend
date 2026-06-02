@@ -13,11 +13,18 @@ import {
   Play,
   Sparkles,
   History,
+  CheckCircle2,
+  Circle,
 } from "lucide-react";
 import { useModuleDetail } from "@/hooks/useModules";
 import { useModuleLessons } from "@/hooks/useLessons";
 import { useModuleFlashcardSets } from "@/hooks/useFlashcards";
 import { useModuleQuizzes } from "@/hooks/useQuizzes";
+import {
+  useCompletedLessons,
+  useMarkLessonComplete,
+  useUnmarkLessonComplete,
+} from "@/hooks/useLessonCompletion";
 
 export default function StudentModuleDetailPage() {
   const { id } = useParams();
@@ -28,6 +35,24 @@ export default function StudentModuleDetailPage() {
     useModuleFlashcardSets(id);
   const { data: quizzes = [], isLoading: quizzesLoading } =
     useModuleQuizzes(id);
+
+  const courseId = module?.course?.id || module?.courseId;
+  const { data: completions = [] } = useCompletedLessons(courseId);
+  const { mutate: markComplete, isPending: isMarking } =
+    useMarkLessonComplete(courseId);
+  const { mutate: unmarkComplete, isPending: isUnmarking } =
+    useUnmarkLessonComplete(courseId);
+
+  const completedSet = new Set(completions.map((c) => c.lessonId));
+  const isPendingCompletion = isMarking || isUnmarking;
+
+  const toggleLessonComplete = (lessonId) => {
+    if (completedSet.has(lessonId)) {
+      unmarkComplete(lessonId);
+    } else {
+      markComplete(lessonId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -77,18 +102,53 @@ export default function StudentModuleDetailPage() {
             </p>
           ) : (
             <div className="space-y-4">
-              {lessons.map((lesson, idx) => (
+              {lessons.map((lesson, idx) => {
+                const isDone = completedSet.has(lesson.id);
+                return (
                 <div
                   key={lesson.id}
-                  className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                  className={`border rounded-lg p-4 hover:shadow-sm transition-shadow ${
+                    isDone
+                      ? "border-green-200 bg-green-50/30"
+                      : ""
+                  }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-medium flex-shrink-0">
+                    <div
+                      className={`h-7 w-7 rounded-lg flex items-center justify-center text-sm font-medium flex-shrink-0 ${
+                        isDone
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-50 text-blue-600"
+                      }`}
+                    >
                       {idx + 1}
                     </div>
                     <h3 className="font-semibold text-base flex-1">
                       {lesson.title}
                     </h3>
+                    <button
+                      type="button"
+                      onClick={() => toggleLessonComplete(lesson.id)}
+                      disabled={isPendingCompletion}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                        isDone
+                          ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-200"
+                          : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                      } disabled:opacity-50`}
+                      title={isDone ? "Đã hoàn thành — bấm để bỏ" : "Đánh dấu đã học"}
+                    >
+                      {isDone ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Đã học
+                        </>
+                      ) : (
+                        <>
+                          <Circle className="h-3.5 w-3.5" />
+                          Đánh dấu
+                        </>
+                      )}
+                    </button>
                   </div>
 
                   <div className="flex flex-wrap gap-3 mb-2">
@@ -139,7 +199,8 @@ export default function StudentModuleDetailPage() {
                     </p>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

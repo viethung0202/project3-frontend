@@ -197,6 +197,28 @@ export const getStudentQuizHistory = async () => {
   return data;
 };
 
+export const getStudentProgress = async () => {
+  const { data } = await axiosInstance.get("/student/progress");
+  return data;
+};
+
+export const getCompletedLessons = async (courseId) => {
+  const { data } = await axiosInstance.get(
+    `/student/courses/${courseId}/completed-lessons`,
+  );
+  return data;
+};
+
+export const markLessonComplete = async (lessonId) => {
+  const { data } = await axiosInstance.post(`/lessons/${lessonId}/complete`);
+  return data;
+};
+
+export const unmarkLessonComplete = async (lessonId) => {
+  const { data } = await axiosInstance.delete(`/lessons/${lessonId}/complete`);
+  return data;
+};
+
 // ===== MODULES =====
 export const createModule = async ({ courseId, ...moduleData }) => {
   const { data } = await axiosInstance.post(
