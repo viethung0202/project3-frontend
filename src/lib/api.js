@@ -347,16 +347,20 @@ export const deleteQuiz = async (id) => {
 };
 
 // ===== QUESTIONS =====
+// Accept hoặc plain object (JSON) hoặc FormData (multipart với audio/image)
 export const createQuestion = async ({ quizId, ...questionData }) => {
+  // formData được truyền dưới key "formData" để rõ ràng
+  const payload = questionData.formData || questionData;
   const { data } = await axiosInstance.post(
     `/quizzes/${quizId}/questions`,
-    questionData,
+    payload,
   );
   return data;
 };
 
 export const updateQuestion = async ({ id, ...questionData }) => {
-  const { data } = await axiosInstance.put(`/questions/${id}`, questionData);
+  const payload = questionData.formData || questionData;
+  const { data } = await axiosInstance.put(`/questions/${id}`, payload);
   return data;
 };
 

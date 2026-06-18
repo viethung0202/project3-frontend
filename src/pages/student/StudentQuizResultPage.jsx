@@ -170,6 +170,25 @@ export default function StudentQuizResultPage() {
                 </div>
               </CardHeader>
               <CardContent>
+                {(q.audioUrl || q.imageUrl) && (
+                  <div className="mb-3 space-y-2">
+                    {q.imageUrl && (
+                      <img
+                        src={q.imageUrl}
+                        alt={`Question ${idx + 1}`}
+                        className="rounded-lg border max-h-64 w-auto"
+                      />
+                    )}
+                    {q.audioUrl && (
+                      <audio
+                        controls
+                        src={q.audioUrl}
+                        className="w-full"
+                        preload="metadata"
+                      />
+                    )}
+                  </div>
+                )}
                 <div className="space-y-2">
                   {q.answers.map((a, ai) => {
                     const isCorrect = a.isCorrect;

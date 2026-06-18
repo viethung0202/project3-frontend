@@ -237,6 +237,26 @@ export default function StudentQuizPage() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Media: audio + image (cho listening / visual question) */}
+          {(currentQ.audioUrl || currentQ.imageUrl) && (
+            <div className="mb-4 space-y-3">
+              {currentQ.imageUrl && (
+                <img
+                  src={currentQ.imageUrl}
+                  alt={`Question ${currentIdx + 1}`}
+                  className="rounded-lg border max-h-80 w-auto"
+                />
+              )}
+              {currentQ.audioUrl && (
+                <audio
+                  controls
+                  src={currentQ.audioUrl}
+                  className="w-full"
+                  preload="metadata"
+                />
+              )}
+            </div>
+          )}
           <div className="space-y-2">
             {currentQ.answers.map((a, idx) => {
               const isSel = (selected[currentQ.id] || []).includes(a.id);

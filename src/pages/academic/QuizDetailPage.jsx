@@ -160,6 +160,27 @@ export default function QuizDetailPage() {
                     </DropdownMenu>
                   </div>
 
+                  {/* Media (audio + image cho listening / visual) */}
+                  {(q.audioUrl || q.imageUrl) && (
+                    <div className="ml-10 mb-2 space-y-2">
+                      {q.imageUrl && (
+                        <img
+                          src={q.imageUrl}
+                          alt={`Question ${idx + 1}`}
+                          className="rounded-lg border max-h-48 w-auto"
+                        />
+                      )}
+                      {q.audioUrl && (
+                        <audio
+                          controls
+                          src={q.audioUrl}
+                          className="h-9 w-full max-w-md"
+                          preload="metadata"
+                        />
+                      )}
+                    </div>
+                  )}
+
                   {/* Answers list */}
                   <div className="ml-10 space-y-1.5">
                     {q.answers?.map((a, aIdx) => (
