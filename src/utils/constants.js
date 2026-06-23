@@ -5,6 +5,8 @@ import {
   GraduationCap,
   TrendingUp,
   ClipboardList,
+  Mail,
+  Award,
 } from "lucide-react";
 
 // Các role trong hệ thống
@@ -39,6 +41,7 @@ export const MENU_BY_ROLE = {
   ADMIN: [
     { to: "/admin", label: "Tổng quan", icon: LayoutDashboard },
     { to: "/admin/users", label: "Quản lý người dùng", icon: Users },
+    { to: "/admin/messages", label: "Tin nhắn liên hệ", icon: Mail },
   ],
   ACADEMIC_STAFF: [
     { to: "/academic", label: "Tổng quan", icon: LayoutDashboard },
@@ -59,6 +62,7 @@ export const MENU_BY_ROLE = {
     { to: "/student/courses", label: "Khóa học của tôi", icon: BookOpen },
     { to: "/student/quizzes", label: "Lịch sử Quiz", icon: ClipboardList },
     { to: "/student/progress", label: "Tiến độ", icon: TrendingUp },
+    { to: "/student/certificates", label: "Chứng chỉ", icon: Award },
   ],
 };
 
@@ -87,4 +91,33 @@ export const QUESTION_TYPES = {
 export const ATTEMPT_STATUS = {
   IN_PROGRESS: "Đang làm",
   COMPLETED: "Hoàn thành",
+};
+
+// Xếp loại đánh giá học sinh
+export const EVAL_GRADES = {
+  EXCELLENT: {
+    label: "Xuất sắc",
+    color: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    dot: "bg-emerald-500",
+  },
+  GOOD: {
+    label: "Giỏi",
+    color: "bg-blue-100 text-blue-700 border-blue-200",
+    dot: "bg-blue-500",
+  },
+  AVERAGE: {
+    label: "Khá",
+    color: "bg-amber-100 text-amber-700 border-amber-200",
+    dot: "bg-amber-500",
+  },
+  FAIR: {
+    label: "Trung bình",
+    color: "bg-orange-100 text-orange-700 border-orange-200",
+    dot: "bg-orange-500",
+  },
+  POOR: {
+    label: "Cần cải thiện",
+    color: "bg-red-100 text-red-700 border-red-200",
+    dot: "bg-red-500",
+  },
 };

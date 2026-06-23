@@ -425,3 +425,109 @@ export const deleteAnswer = async (id) => {
   const { data } = await axiosInstance.delete(`/answers/${id}`);
   return data;
 };
+
+// ==================== CONTACT ====================
+export const submitContact = async (payload) => {
+  const { data } = await axiosInstance.post("/contact", payload);
+  return data;
+};
+
+export const listContactMessages = async (params = {}) => {
+  const { data } = await axiosInstance.get("/contact", { params });
+  return data.data;
+};
+
+export const getContactStats = async () => {
+  const { data } = await axiosInstance.get("/contact/stats");
+  return data.data;
+};
+
+export const updateContactStatus = async ({ id, status }) => {
+  const { data } = await axiosInstance.patch(`/contact/${id}/status`, { status });
+  return data;
+};
+
+export const deleteContactMessage = async (id) => {
+  const { data } = await axiosInstance.delete(`/contact/${id}`);
+  return data;
+};
+
+// ==================== FORGOT PASSWORD ====================
+export const forgotPassword = async (email) => {
+  const { data } = await axiosInstance.post("/auth/forgot-password", { email });
+  return data;
+};
+
+export const verifyResetToken = async (token) => {
+  const { data } = await axiosInstance.get("/auth/verify-reset-token", {
+    params: { token },
+  });
+  return data.data;
+};
+
+export const resetPassword = async ({ token, newPassword }) => {
+  const { data } = await axiosInstance.post("/auth/reset-password", {
+    token,
+    newPassword,
+  });
+  return data;
+};
+
+// ==================== CERTIFICATE ====================
+export const claimCertificate = async (courseId) => {
+  const { data } = await axiosInstance.post("/certificates/claim", { courseId });
+  return data;
+};
+
+export const listMyCertificates = async () => {
+  const { data } = await axiosInstance.get("/certificates/me");
+  return data.data;
+};
+
+export const getCertificateByNumber = async (certNumber) => {
+  const { data } = await axiosInstance.get(
+    `/certificates/by-number/${certNumber}`,
+  );
+  return data.data;
+};
+
+export const verifyCertificate = async (certNumber) => {
+  const { data } = await axiosInstance.get(
+    `/certificates/verify/${certNumber}`,
+  );
+  return data.data;
+};
+
+// ==================== EVALUATION ====================
+export const upsertEvaluation = async (payload) => {
+  const { data } = await axiosInstance.post("/evaluations", payload);
+  return data;
+};
+
+export const listEvaluationsForCourse = async (courseId) => {
+  const { data } = await axiosInstance.get(`/evaluations/course/${courseId}`);
+  return data.data;
+};
+
+export const deleteEvaluation = async (id) => {
+  const { data } = await axiosInstance.delete(`/evaluations/${id}`);
+  return data;
+};
+
+export const getMyEvaluationForCourse = async (courseId) => {
+  const { data } = await axiosInstance.get(
+    `/evaluations/me/course/${courseId}`,
+  );
+  return data.data;
+};
+
+export const listMyEvaluations = async () => {
+  const { data } = await axiosInstance.get("/evaluations/me");
+  return data.data;
+};
+
+// ==================== LEADERBOARD ====================
+export const getLeaderboard = async (courseId) => {
+  const { data } = await axiosInstance.get(`/leaderboard/course/${courseId}`);
+  return data.data;
+};

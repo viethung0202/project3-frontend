@@ -14,10 +14,16 @@ import ProfilePage from "@/pages/public/ProfilePage";
 import PublicCoursesPage from "@/pages/public/CoursesPage";
 import PublicCourseDetailPage from "@/pages/public/CourseDetailPage";
 import AboutPage from "@/pages/public/AboutPage";
+import ContactPage from "@/pages/public/ContactPage";
+import ForgotPasswordPage from "@/pages/public/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/public/ResetPasswordPage";
+import CertificatePage from "@/pages/public/CertificatePage";
+import VerifyCertificatePage from "@/pages/public/VerifyCertificatePage";
 
 // Dashboards
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UsersPage from "@/pages/admin/UsersPage";
+import MessagesPage from "@/pages/admin/MessagesPage";
 import AcademicDashboard from "@/pages/academic/AcademicDashboard";
 import CoursesPage from "@/pages/academic/CoursesPage";
 import CreateCoursePage from "@/pages/academic/CreateCoursePage";
@@ -34,6 +40,7 @@ import TeacherDashboard from "@/pages/teacher/TeacherDashboard";
 import TeacherCoursesPage from "@/pages/teacher/TeacherCoursesPage";
 import TeacherCourseDetailPage from "@/pages/teacher/TeacherCourseDetailPage";
 import TeacherModuleDetailPage from "@/pages/teacher/TeacherModuleDetailPage";
+import TeacherEvaluationsPage from "@/pages/teacher/TeacherEvaluationsPage";
 import StudentDashboard from "@/pages/student/StudentDashboard";
 import StudentCoursesPage from "@/pages/student/StudentCoursesPage";
 import StudentCourseDetailPage from "@/pages/student/StudentCourseDetailPage";
@@ -44,6 +51,7 @@ import StudentQuizResultPage from "@/pages/student/StudentQuizResultPage";
 import StudentQuizHistoryPage from "@/pages/student/StudentQuizHistoryPage";
 import StudentAllQuizHistoryPage from "@/pages/student/StudentAllQuizHistoryPage";
 import StudentProgressPage from "@/pages/student/StudentProgressPage";
+import StudentCertificatesPage from "@/pages/student/StudentCertificatesPage";
 
 // Common
 import ForbiddenPage from "@/pages/ForbiddenPage";
@@ -59,6 +67,7 @@ export default function Apps() {
           <Route path="/courses" element={<PublicCoursesPage />} />
           <Route path="/courses/:id" element={<PublicCourseDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route
             path="/profile"
             element={
@@ -72,6 +81,13 @@ export default function Apps() {
         {/* Auth routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+        {/* Certificate public routes */}
+        <Route path="/certificate/:certNumber" element={<CertificatePage />} />
+        <Route path="/verify" element={<VerifyCertificatePage />} />
+        <Route path="/verify/:certNumber" element={<VerifyCertificatePage />} />
 
         {/* Admin routes */}
         <Route
@@ -84,6 +100,7 @@ export default function Apps() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
+          <Route path="messages" element={<MessagesPage />} />
         </Route>
 
         {/* Academic Staff (Giáo vụ) */}
@@ -142,6 +159,10 @@ export default function Apps() {
             path="modules/:id"
             element={<TeacherModuleDetailPage />}
           />
+          <Route
+            path="courses/:id/evaluations"
+            element={<TeacherEvaluationsPage />}
+          />
         </Route>
 
         {/* Student */}
@@ -178,6 +199,7 @@ export default function Apps() {
             element={<StudentQuizResultPage />}
           />
           <Route path="progress" element={<StudentProgressPage />} />
+          <Route path="certificates" element={<StudentCertificatesPage />} />
         </Route>
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="*" element={<NotFoundPage />} />

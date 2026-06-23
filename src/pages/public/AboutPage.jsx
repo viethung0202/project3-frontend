@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Sparkles,
   Quote,
+  BookMarked,
 } from "lucide-react";
 
 export default function AboutPage() {
@@ -57,6 +58,46 @@ export default function AboutPage() {
               title="Tầm nhìn"
               text="Trở thành nền tảng học tiếng Anh online được tin dùng nhất Việt Nam, nơi mỗi học viên đều có thể tự tin giao tiếp và mở ra cơ hội học tập, làm việc toàn cầu."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* CURRICULUM */}
+      <section className="py-16 md:py-20 bg-gradient-to-br from-blue-50/40 to-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center bg-white border border-blue-100 rounded-2xl p-7 md:p-9 shadow-sm">
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-blue-100 text-blue-600 mx-auto md:mx-0">
+                <BookMarked className="h-8 w-8" />
+              </div>
+              <div className="text-center md:text-left">
+                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 mb-2">
+                  Chương trình học
+                </Badge>
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                  Biên soạn theo sách{" "}
+                  <span className="text-blue-600">TOEIC Basic</span>
+                </h2>
+                <p className="text-gray-600 leading-relaxed mb-4">
+                  Toàn bộ nội dung khóa học tại EngCenter được biên soạn bám sát
+                  bộ sách <strong>TOEIC Basic</strong> — chuẩn quốc tế dành cho
+                  người mới bắt đầu, đảm bảo lộ trình rõ ràng từ nền tảng đến
+                  luyện đề thực chiến.
+                </p>
+                <p className="text-gray-600 leading-relaxed">
+                  Chương trình được thiết kế theo{" "}
+                  <strong>4 kỹ năng</strong>: Nghe (Listening), Nói (Speaking),
+                  Đọc (Reading) và Viết (Writing) — giúp học viên phát triển
+                  toàn diện và sẵn sàng cho mọi tình huống sử dụng tiếng Anh.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+                  <SkillPill label="Nghe" sub="Listening" color="bg-blue-50 text-blue-700 border-blue-200" />
+                  <SkillPill label="Nói" sub="Speaking" color="bg-emerald-50 text-emerald-700 border-emerald-200" />
+                  <SkillPill label="Đọc" sub="Reading" color="bg-amber-50 text-amber-700 border-amber-200" />
+                  <SkillPill label="Viết" sub="Writing" color="bg-purple-50 text-purple-700 border-purple-200" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -254,6 +295,15 @@ function ValueCard({ icon: Icon, color, title, text }) {
       </div>
       <h3 className="font-semibold text-lg text-gray-900 mb-1.5">{title}</h3>
       <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
+    </div>
+  );
+}
+
+function SkillPill({ label, sub, color }) {
+  return (
+    <div className={`text-center px-3 py-2 rounded-lg border ${color}`}>
+      <div className="font-semibold text-sm">{label}</div>
+      <div className="text-xs opacity-80">{sub}</div>
     </div>
   );
 }

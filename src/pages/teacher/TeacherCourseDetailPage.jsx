@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,11 +11,13 @@ import {
   Loader2,
   HelpCircle,
   FileText,
+  Trophy,
 } from "lucide-react";
 import { useCourseDetail } from "@/hooks/useCourses";
 import { useCourseTeachers } from "@/hooks/useCourseTeachers";
 import { useTeacherCourseEnrollments } from "@/hooks/useTeacher";
 import { COURSE_LEVELS, COURSE_STATUS } from "@/utils/constants";
+import CourseLeaderboard from "@/components/course/CourseLeaderboard";
 
 const statusStyles = {
   DRAFT: "bg-gray-100 text-gray-700",
@@ -24,6 +27,7 @@ const statusStyles = {
 
 export default function TeacherCourseDetailPage() {
   const { id } = useParams();
+  const [tab, setTab] = useState("students");
   const { data: course, isLoading } = useCourseDetail(id);
   const { data: teachers = [] } = useCourseTeachers(id);
   const { data: enrollments = [], isLoading: enrollmentsLoading } =
@@ -62,12 +66,22 @@ export default function TeacherCourseDetailPage() {
           <ChevronLeft className="h-4 w-4 mr-1" />
           Quay lại danh sách
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">{course.title}</h1>
-        <div className="flex items-center gap-2 mt-2">
-          <Badge variant="outline">{COURSE_LEVELS[course.level]}</Badge>
-          <Badge className={statusStyles[course.status] || ""}>
-            {COURSE_STATUS[course.status]}
-          </Badge>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{course.title}</h1>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline">{COURSE_LEVELS[course.level]}</Badge>
+              <Badge className={statusStyles[course.status] || ""}>
+                {COURSE_STATUS[course.status]}
+              </Badge>
+            </div>
+          </div>
+          <Link
+            to={`/teacher/courses/${course.id}/evaluations`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Đánh giá học sinh
+          </Link>
         </div>
       </div>
 
@@ -191,7 +205,28 @@ export default function TeacherCourseDetailPage() {
         </Card>
       )}
 
+      {/* Tab switcher */}
+      <div className="border-b flex gap-1">
+        <TabBtn
+          active={tab === "students"}
+          onClick={() => setTab("students")}
+          icon={Users}
+        >
+          Học sinh
+        </TabBtn>
+        <TabBtn
+          active={tab === "leaderboard"}
+          onClick={() => setTab("leaderboard")}
+          icon={Trophy}
+        >
+          Bảng xếp hạng
+        </TabBtn>
+      </div>
+
+      {tab === "leaderboard" && <CourseLeaderboard courseId={course.id} />}
+
       {/* Students */}
+      {tab === "students" && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -251,7 +286,25 @@ export default function TeacherCourseDetailPage() {
           )}
         </CardContent>
       </Card>
+      )}
     </div>
+  );
+}
+
+function TabBtn({ active, onClick, icon: Icon, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+        active
+          ? "border-blue-600 text-blue-600"
+          : "border-transparent text-gray-600 hover:text-gray-900"
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {children}
+    </button>
   );
 }
 
