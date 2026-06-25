@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Mail,
   Award,
+  FileText,
 } from "lucide-react";
 
 // Các role trong hệ thống
@@ -46,6 +47,7 @@ export const MENU_BY_ROLE = {
   ACADEMIC_STAFF: [
     { to: "/academic", label: "Tổng quan", icon: LayoutDashboard },
     { to: "/academic/courses", label: "Khóa học", icon: BookOpen },
+    { to: "/academic/documents", label: "Học liệu", icon: FileText },
   ],
   ADMIN_STAFF: [
     { to: "/staff", label: "Tổng quan", icon: LayoutDashboard },
@@ -56,10 +58,12 @@ export const MENU_BY_ROLE = {
   TEACHER: [
     { to: "/teacher", label: "Tổng quan", icon: LayoutDashboard },
     { to: "/teacher/courses", label: "Khóa học của tôi", icon: BookOpen },
+    { to: "/teacher/documents", label: "Học liệu", icon: FileText },
   ],
   STUDENT: [
     { to: "/student", label: "Tổng quan", icon: LayoutDashboard },
     { to: "/student/courses", label: "Khóa học của tôi", icon: BookOpen },
+    { to: "/student/documents", label: "Học liệu", icon: FileText },
     { to: "/student/quizzes", label: "Lịch sử Quiz", icon: ClipboardList },
     { to: "/student/progress", label: "Tiến độ", icon: TrendingUp },
     { to: "/student/certificates", label: "Chứng chỉ", icon: Award },

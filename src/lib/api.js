@@ -369,6 +369,47 @@ export const deleteQuestion = async (id) => {
   return data;
 };
 
+// ===== DOCUMENTS (học liệu) =====
+export const getDocuments = async (params = {}) => {
+  const { data } = await axiosInstance.get("/documents", { params });
+  return data;
+};
+
+export const getDocumentById = async (id) => {
+  const { data } = await axiosInstance.get(`/documents/${id}`);
+  return data;
+};
+
+export const createDocument = async (formData) => {
+  const { data } = await axiosInstance.post("/documents", formData);
+  return data;
+};
+
+export const updateDocument = async ({ id, formData }) => {
+  const { data } = await axiosInstance.put(`/documents/${id}`, formData);
+  return data;
+};
+
+export const deleteDocument = async (id) => {
+  const { data } = await axiosInstance.delete(`/documents/${id}`);
+  return data;
+};
+
+export const reviewDocument = async ({ documentId, rating, comment }) => {
+  const { data } = await axiosInstance.post(
+    `/documents/${documentId}/reviews`,
+    { rating, comment },
+  );
+  return data;
+};
+
+export const deleteMyDocumentReview = async (documentId) => {
+  const { data } = await axiosInstance.delete(
+    `/documents/${documentId}/reviews/me`,
+  );
+  return data;
+};
+
 // ===== QUIZ ATTEMPTS (student) =====
 export const startQuizAttempt = async (quizId) => {
   const { data } = await axiosInstance.post(`/quizzes/${quizId}/attempts`);

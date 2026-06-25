@@ -32,6 +32,7 @@ import EditCoursePage from "@/pages/academic/EditCoursePage";
 import ModuleDetailPage from "@/pages/academic/ModuleDetailPage";
 import FlashcardSetDetailPage from "@/pages/academic/FlashcardSetDetailPage";
 import QuizDetailPage from "@/pages/academic/QuizDetailPage";
+import DocumentsPage from "@/pages/academic/DocumentsPage";
 import StaffDashboard from "@/pages/staff/StaffDashboard";
 import TeachersPage from "@/pages/staff/TeachersPage";
 import StudentsPage from "@/pages/staff/StudentsPage";
@@ -40,6 +41,7 @@ import TeacherDashboard from "@/pages/teacher/TeacherDashboard";
 import TeacherCoursesPage from "@/pages/teacher/TeacherCoursesPage";
 import TeacherCourseDetailPage from "@/pages/teacher/TeacherCourseDetailPage";
 import TeacherModuleDetailPage from "@/pages/teacher/TeacherModuleDetailPage";
+import TeacherDocumentsPage from "@/pages/teacher/TeacherDocumentsPage";
 import TeacherEvaluationsPage from "@/pages/teacher/TeacherEvaluationsPage";
 import StudentDashboard from "@/pages/student/StudentDashboard";
 import StudentCoursesPage from "@/pages/student/StudentCoursesPage";
@@ -50,6 +52,7 @@ import StudentQuizPage from "@/pages/student/StudentQuizPage";
 import StudentQuizResultPage from "@/pages/student/StudentQuizResultPage";
 import StudentQuizHistoryPage from "@/pages/student/StudentQuizHistoryPage";
 import StudentAllQuizHistoryPage from "@/pages/student/StudentAllQuizHistoryPage";
+import StudentDocumentsPage from "@/pages/student/StudentDocumentsPage";
 import StudentProgressPage from "@/pages/student/StudentProgressPage";
 import StudentCertificatesPage from "@/pages/student/StudentCertificatesPage";
 
@@ -123,6 +126,7 @@ export default function Apps() {
             element={<FlashcardSetDetailPage />}
           />
           <Route path="quizzes/:id" element={<QuizDetailPage />} />
+          <Route path="documents" element={<DocumentsPage />} />
         </Route>
 
         {/* Admin Staff (Hành chính) */}
@@ -163,6 +167,7 @@ export default function Apps() {
             path="courses/:id/evaluations"
             element={<TeacherEvaluationsPage />}
           />
+          <Route path="documents" element={<TeacherDocumentsPage />} />
         </Route>
 
         {/* Student */}
@@ -188,6 +193,7 @@ export default function Apps() {
             path="flashcard-sets/:id"
             element={<StudentFlashcardStudyPage />}
           />
+          <Route path="documents" element={<StudentDocumentsPage />} />
           <Route path="quizzes" element={<StudentAllQuizHistoryPage />} />
           <Route path="quizzes/:id" element={<StudentQuizPage />} />
           <Route
