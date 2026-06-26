@@ -74,21 +74,29 @@ import {
 } from "@/hooks/useDocuments";
 import { useCoursesList } from "@/hooks/useCourses";
 import DocumentViewer from "@/components/document/DocumentViewer";
+import { useQuery } from "@tanstack/react-query";
+import { getDocumentSources } from "@/lib/api";
 
 export default function DocumentsPage() {
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
 
   const queryParams = useMemo(() => {
     const p = {};
     if (search) p.search = search;
     if (courseFilter === "none") p.courseId = "null";
     else if (courseFilter !== "all") p.courseId = courseFilter;
+    if (sourceFilter !== "all") p.source = sourceFilter;
     return p;
-  }, [search, courseFilter]);
+  }, [search, courseFilter, sourceFilter]);
 
   const { data: documents = [], isLoading } = useDocuments(queryParams);
   const { data: courses = [] } = useCoursesList();
+  const { data: sourceOptions = [] } = useQuery({
+    queryKey: ["document-sources"],
+    queryFn: getDocumentSources,
+  });
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -156,7 +164,7 @@ export default function DocumentsPage() {
               />
             </div>
             <Select value={courseFilter} onValueChange={setCourseFilter}>
-              <SelectTrigger className="w-full md:w-64">
+              <SelectTrigger className="w-full md:w-56">
                 <SelectValue placeholder="Lọc theo khóa học" />
               </SelectTrigger>
               <SelectContent>
@@ -165,6 +173,19 @@ export default function DocumentsPage() {
                 {courses.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+              <SelectTrigger className="w-full md:w-56">
+                <SelectValue placeholder="Lọc theo nguồn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả nguồn</SelectItem>
+                {sourceOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -263,6 +284,11 @@ export default function DocumentsPage() {
                               {doc.description}
                             </p>
                           )}
+                          {doc.source && (
+                            <p className="text-[11px] text-gray-500 truncate max-w-md mt-0.5 italic">
+                              Nguồn: {doc.source}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </TableCell>
@@ -300,16 +326,31 @@ export default function DocumentsPage() {
                     </TableCell>
                     <TableCell>
                       {doc.lessons?.length > 0 ? (
-                        <div className="flex flex-col gap-0.5 max-w-[180px]">
+                        <div className="flex flex-col gap-1 max-w-[220px]">
                           {doc.lessons.slice(0, 2).map((ld) => (
-                            <span
+                            <div
                               key={ld.id}
-                              className="text-xs text-gray-700 truncate inline-flex items-center gap-1"
-                              title={ld.lesson?.title}
+                              className="text-xs"
+                              title={`${ld.lesson?.module?.course?.title || ""} › ${ld.lesson?.module?.title || ""} › ${ld.lesson?.title || ""}`}
                             >
-                              <Layers className="h-3 w-3 text-gray-400 flex-shrink-0" />
-                              {ld.lesson?.title || "—"}
-                            </span>
+                              <div className="text-gray-800 truncate inline-flex items-center gap-1">
+                                <Layers className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                                <span className="truncate">
+                                  {ld.lesson?.title || "—"}
+                                </span>
+                              </div>
+                              {ld.lesson?.module?.title && (
+                                <div className="text-[10px] text-gray-500 pl-4 truncate">
+                                  {ld.lesson.module.title}
+                                  {ld.lesson.module.course?.title && (
+                                    <span className="text-gray-400">
+                                      {" · "}
+                                      {ld.lesson.module.course.title}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           ))}
                           {doc.lessons.length > 2 && (
                             <span className="text-[10px] text-gray-500">
@@ -439,6 +480,7 @@ function DocumentFormDialog({ open, onOpenChange, editing, courses }) {
   const isEdit = !!editing;
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [source, setSource] = useState("");
   const [courseId, setCourseId] = useState("none");
   const [isPublished, setIsPublished] = useState(true);
   const [allowDownload, setAllowDownload] = useState(true);
@@ -448,6 +490,7 @@ function DocumentFormDialog({ open, onOpenChange, editing, courses }) {
     if (open) {
       setTitle(editing?.title || "");
       setDescription(editing?.description || "");
+      setSource(editing?.source || "");
       setCourseId(editing?.courseId || "none");
       setIsPublished(editing?.isPublished ?? true);
       setAllowDownload(editing?.allowDownload ?? true);
@@ -462,11 +505,13 @@ function DocumentFormDialog({ open, onOpenChange, editing, courses }) {
   const onSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
+    if (!source.trim()) return;
     if (!isEdit && !file) return;
 
     const formData = new FormData();
     formData.append("title", title.trim());
     if (description) formData.append("description", description.trim());
+    formData.append("source", source.trim());
     formData.append("courseId", courseId === "none" ? "" : courseId);
     formData.append("isPublished", String(isPublished));
     formData.append("allowDownload", String(allowDownload));
@@ -519,6 +564,24 @@ function DocumentFormDialog({ open, onOpenChange, editing, courses }) {
               placeholder="Mô tả ngắn về tài liệu này..."
               rows={3}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="doc-source">
+              Nguồn tài liệu <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="doc-source"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              placeholder="VD: Sách TOEIC Basic - NXB Tổng hợp / BBC Learning English / Tự biên soạn"
+              maxLength={300}
+              required
+            />
+            <p className="text-[11px] text-gray-500 mt-1">
+              Ghi rõ nguồn gốc tài liệu (tên sách, website, tác giả, hoặc "Tự
+              biên soạn") để đảm bảo bản quyền.
+            </p>
           </div>
 
           <div>
@@ -775,6 +838,11 @@ function GroupedCourseSection({ group, onEdit, onDelete, onPreview }) {
                             {doc.description}
                           </p>
                         )}
+                        {doc.source && (
+                          <p className="text-[11px] text-gray-500 truncate max-w-md mt-0.5 italic">
+                            Nguồn: {doc.source}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -803,16 +871,31 @@ function GroupedCourseSection({ group, onEdit, onDelete, onPreview }) {
                   </TableCell>
                   <TableCell>
                     {doc.lessons?.length > 0 ? (
-                      <div className="flex flex-col gap-0.5 max-w-[200px]">
+                      <div className="flex flex-col gap-1 max-w-[220px]">
                         {doc.lessons.slice(0, 2).map((ld) => (
-                          <span
+                          <div
                             key={ld.id}
-                            className="text-xs text-gray-700 truncate inline-flex items-center gap-1"
-                            title={ld.lesson?.title}
+                            className="text-xs"
+                            title={`${ld.lesson?.module?.course?.title || ""} › ${ld.lesson?.module?.title || ""} › ${ld.lesson?.title || ""}`}
                           >
-                            <Layers className="h-3 w-3 text-gray-400 flex-shrink-0" />
-                            {ld.lesson?.title || "—"}
-                          </span>
+                            <div className="text-gray-800 truncate inline-flex items-center gap-1">
+                              <Layers className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                              <span className="truncate">
+                                {ld.lesson?.title || "—"}
+                              </span>
+                            </div>
+                            {ld.lesson?.module?.title && (
+                              <div className="text-[10px] text-gray-500 pl-4 truncate">
+                                {ld.lesson.module.title}
+                                {ld.lesson.module.course?.title && (
+                                  <span className="text-gray-400">
+                                    {" · "}
+                                    {ld.lesson.module.course.title}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         ))}
                         {doc.lessons.length > 2 && (
                           <span className="text-[10px] text-gray-500">

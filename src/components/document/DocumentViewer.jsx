@@ -70,6 +70,11 @@ export default function DocumentViewer({ document: doc, open, onOpenChange }) {
                   {doc.description}
                 </DialogDescription>
               )}
+              {doc.source && (
+                <p className="text-xs text-gray-500 italic mt-1 truncate">
+                  Nguồn: {doc.source}
+                </p>
+              )}
             </div>
             <div className="flex gap-2 flex-shrink-0">
               {doc.allowDownload ? (

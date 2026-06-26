@@ -398,6 +398,11 @@ export const getDocuments = async (params = {}) => {
   return data;
 };
 
+export const getDocumentSources = async () => {
+  const { data } = await axiosInstance.get("/documents/sources");
+  return data.data;
+};
+
 export const getDocumentById = async (id) => {
   const { data } = await axiosInstance.get(`/documents/${id}`);
   return data;
@@ -417,6 +422,13 @@ export const deleteDocument = async (id) => {
   const { data } = await axiosInstance.delete(`/documents/${id}`);
   return data;
 };
+
+// Track download / view (best-effort, không cần await trên UI)
+export const trackDocumentDownload = (id) =>
+  axiosInstance.post(`/documents/${id}/download`).catch(() => null);
+
+export const trackDocumentView = (id) =>
+  axiosInstance.post(`/documents/${id}/view`).catch(() => null);
 
 // Student review (rating + comment)
 export const reviewDocument = async ({ documentId, rating, comment }) => {

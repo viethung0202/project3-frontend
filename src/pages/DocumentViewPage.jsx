@@ -66,6 +66,11 @@ export default function DocumentViewPage() {
                   Khóa: {doc.course.title}
                 </span>
               )}
+              {doc.source && (
+                <span className="text-xs text-gray-500 italic">
+                  · Nguồn: {doc.source}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">

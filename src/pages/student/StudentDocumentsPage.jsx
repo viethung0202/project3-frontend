@@ -45,17 +45,32 @@ import {
 import { useStudentCourses } from "@/hooks/useStudent";
 import useAuthUser from "@/hooks/authHook/useAuthUser";
 import DocumentViewer from "@/components/document/DocumentViewer";
+import {
+  trackDocumentDownload,
+  trackDocumentView,
+  getDocumentSources,
+} from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 export default function StudentDocumentsPage() {
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [sort, setSort] = useState("newest");
+
+  const { data: sourceOptions = [] } = useQuery({
+    queryKey: ["document-sources"],
+    queryFn: getDocumentSources,
+  });
 
   const queryParams = useMemo(() => {
     const p = {};
     if (search) p.search = search;
     if (courseFilter !== "all") p.courseId = courseFilter;
+    if (sourceFilter !== "all") p.source = sourceFilter;
+    if (sort !== "newest") p.sort = sort;
     return p;
-  }, [search, courseFilter]);
+  }, [search, courseFilter, sourceFilter, sort]);
 
   const { data: documents = [], isLoading } = useDocuments(queryParams);
   const { data: myCourses = [] } = useStudentCourses();
@@ -89,16 +104,41 @@ export default function StudentDocumentsPage() {
               />
             </div>
             <Select value={courseFilter} onValueChange={setCourseFilter}>
-              <SelectTrigger className="w-full md:w-64">
-                <SelectValue placeholder="Lọc theo khóa học" />
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Lọc khóa học" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="all">Tất cả khóa</SelectItem>
                 {myCourses.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.title}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Lọc theo nguồn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả nguồn</SelectItem>
+                {sourceOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="w-full md:w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Mới nhất</SelectItem>
+                <SelectItem value="rating">Đánh giá cao nhất</SelectItem>
+                <SelectItem value="downloads">Lượt tải nhiều nhất</SelectItem>
+                <SelectItem value="views">Lượt xem nhiều nhất</SelectItem>
+                <SelectItem value="title">Tên (A → Z)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -130,6 +170,7 @@ export default function StudentDocumentsPage() {
               doc={doc}
               onReview={() => setReviewing(doc)}
               onView={() => setViewing(doc)}
+              onFilterSource={setSourceFilter}
             />
           ))}
         </div>
@@ -150,7 +191,7 @@ export default function StudentDocumentsPage() {
   );
 }
 
-function DocumentCard({ doc, onReview, onView }) {
+function DocumentCard({ doc, onReview, onView, onFilterSource }) {
   const ext = (doc.fileType || "").toLowerCase();
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -183,24 +224,63 @@ function DocumentCard({ doc, onReview, onView }) {
         </div>
 
         {doc.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+          <p className="text-sm text-gray-600 line-clamp-2 mb-1">
             {doc.description}
           </p>
         )}
 
+        {doc.source && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onFilterSource?.(doc.source);
+            }}
+            className="text-[11px] text-gray-500 italic truncate mb-3 hover:text-blue-600 hover:underline block text-left w-full"
+            title="Lọc theo nguồn này"
+          >
+            Nguồn: {doc.source}
+          </button>
+        )}
+
         <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <span>{formatDate(doc.createdAt)}</span>
-          {doc.reviewCount > 0 && (
-            <span className="inline-flex items-center gap-1">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              <span className="font-medium text-gray-700">{doc.avgRating}</span>
-              <span>({doc.reviewCount})</span>
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            {(doc.viewCount > 0 || doc.downloadCount > 0) && (
+              <span className="inline-flex items-center gap-2 text-gray-500">
+                {doc.viewCount > 0 && (
+                  <span title="Lượt xem">
+                    <Eye className="h-3 w-3 inline mr-0.5" />
+                    {doc.viewCount}
+                  </span>
+                )}
+                {doc.downloadCount > 0 && (
+                  <span title="Lượt tải">
+                    <Download className="h-3 w-3 inline mr-0.5" />
+                    {doc.downloadCount}
+                  </span>
+                )}
+              </span>
+            )}
+            {doc.reviewCount > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <span className="font-medium text-gray-700">{doc.avgRating}</span>
+                <span>({doc.reviewCount})</span>
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-2">
-          <Button size="sm" className="flex-1" onClick={onView}>
+          <Button
+            size="sm"
+            className="flex-1"
+            onClick={() => {
+              trackDocumentView(doc.id);
+              onView();
+            }}
+          >
             <Eye className="h-3.5 w-3.5 mr-1.5" />
             Xem
           </Button>
@@ -220,7 +300,11 @@ function DocumentCard({ doc, onReview, onView }) {
           </Button>
           {doc.allowDownload ? (
             <Button asChild size="sm" variant="outline" title="Tải về">
-              <a href={doc.fileUrl} download>
+              <a
+                href={doc.fileUrl}
+                download
+                onClick={() => trackDocumentDownload(doc.id)}
+              >
                 <Download className="h-3.5 w-3.5" />
               </a>
             </Button>

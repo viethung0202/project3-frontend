@@ -40,11 +40,30 @@ import {
 } from "@/hooks/useDocuments";
 import useAuthUser from "@/hooks/authHook/useAuthUser";
 import DocumentViewer from "@/components/document/DocumentViewer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { getDocumentSources } from "@/lib/api";
 
 export default function TeacherDocumentsPage() {
   const [search, setSearch] = useState("");
-  const queryParams = useMemo(() => (search ? { search } : {}), [search]);
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const queryParams = useMemo(() => {
+    const p = {};
+    if (search) p.search = search;
+    if (sourceFilter !== "all") p.source = sourceFilter;
+    return p;
+  }, [search, sourceFilter]);
   const { data: documents = [], isLoading } = useDocuments(queryParams);
+  const { data: sourceOptions = [] } = useQuery({
+    queryKey: ["document-sources"],
+    queryFn: getDocumentSources,
+  });
   const [viewing, setViewing] = useState(null); // for feedback dialog
   const [previewing, setPreviewing] = useState(null); // for file viewer
 
@@ -64,14 +83,29 @@ export default function TeacherDocumentsPage() {
       {/* Search */}
       <Card>
         <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm theo tên, mô tả..."
-              className="pl-9"
-            />
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Tìm theo tên, mô tả, nguồn..."
+                className="pl-9"
+              />
+            </div>
+            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+              <SelectTrigger className="w-full md:w-56">
+                <SelectValue placeholder="Lọc theo nguồn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả nguồn</SelectItem>
+                {sourceOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -162,8 +196,14 @@ function DocumentCard({ doc, onOpen, onView }) {
         </div>
 
         {doc.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+          <p className="text-sm text-gray-600 line-clamp-2 mb-1">
             {doc.description}
+          </p>
+        )}
+
+        {doc.source && (
+          <p className="text-[11px] text-gray-500 italic truncate mb-3">
+            Nguồn: {doc.source}
           </p>
         )}
 
