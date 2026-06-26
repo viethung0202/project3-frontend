@@ -267,6 +267,29 @@ export const deleteLesson = async (id) => {
   return data;
 };
 
+// ===== LESSON DOCUMENTS =====
+export const attachLessonDocument = async ({ lessonId, documentId }) => {
+  const { data } = await axiosInstance.post(`/lessons/${lessonId}/documents`, {
+    documentId,
+  });
+  return data;
+};
+
+export const detachLessonDocument = async ({ lessonId, documentId }) => {
+  const { data } = await axiosInstance.delete(
+    `/lessons/${lessonId}/documents/${documentId}`,
+  );
+  return data;
+};
+
+export const reorderLessonDocuments = async ({ lessonId, documentIds }) => {
+  const { data } = await axiosInstance.put(
+    `/lessons/${lessonId}/documents/order`,
+    { documentIds },
+  );
+  return data;
+};
+
 // ===== FLASHCARD SETS =====
 export const getModuleFlashcardSets = async (moduleId) => {
   const { data } = await axiosInstance.get(
@@ -395,6 +418,7 @@ export const deleteDocument = async (id) => {
   return data;
 };
 
+// Student review (rating + comment)
 export const reviewDocument = async ({ documentId, rating, comment }) => {
   const { data } = await axiosInstance.post(
     `/documents/${documentId}/reviews`,
@@ -406,6 +430,22 @@ export const reviewDocument = async ({ documentId, rating, comment }) => {
 export const deleteMyDocumentReview = async (documentId) => {
   const { data } = await axiosInstance.delete(
     `/documents/${documentId}/reviews/me`,
+  );
+  return data;
+};
+
+// Teacher feedback (chỉ nội dung)
+export const feedbackDocument = async ({ documentId, content }) => {
+  const { data } = await axiosInstance.post(
+    `/documents/${documentId}/feedbacks`,
+    { content },
+  );
+  return data;
+};
+
+export const deleteMyDocumentFeedback = async (documentId) => {
+  const { data } = await axiosInstance.delete(
+    `/documents/${documentId}/feedbacks/me`,
   );
   return data;
 };

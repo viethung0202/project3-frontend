@@ -59,6 +59,7 @@ import StudentCertificatesPage from "@/pages/student/StudentCertificatesPage";
 // Common
 import ForbiddenPage from "@/pages/ForbiddenPage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import DocumentViewPage from "@/pages/DocumentViewPage";
 
 export default function Apps() {
   return (
@@ -84,6 +85,16 @@ export default function Apps() {
         {/* Auth routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
+        {/* Document viewer fullscreen — mọi role đã login */}
+        <Route
+          path="/documents/:id/view"
+          element={
+            <ProtectedRoute>
+              <DocumentViewPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 

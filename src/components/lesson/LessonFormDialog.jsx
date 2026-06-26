@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Upload, Link2, X, FileVideo, FileText } from "lucide-react";
 import { useCreateLesson, useUpdateLesson } from "@/hooks/useLessons";
+import LessonDocumentsManager from "@/components/document/LessonDocumentsManager";
 
 const EMPTY = { title: "", content: "", videoUrl: "" };
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
@@ -146,7 +147,7 @@ export default function LessonFormDialog({ moduleId, lesson, open, onClose }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Sửa lesson" : "Tạo lesson mới"}</DialogTitle>
           <DialogDescription>
@@ -361,11 +362,22 @@ export default function LessonFormDialog({ moduleId, lesson, open, onClose }) {
               </a>
             )}
 
-            <p className="text-xs text-gray-500">PDF tối đa 20MB</p>
+            <p className="text-xs text-gray-500">PDF tối đa 20MB (cách cũ — nên dùng "Tài liệu đính kèm" bên dưới)</p>
             {errors.pdf && (
               <p className="text-xs text-red-600">{errors.pdf}</p>
             )}
           </div>
+
+          {/* Tài liệu đính kèm — many-to-many với Document */}
+          {isEdit && (
+            <div className="pt-3 border-t">
+              <LessonDocumentsManager
+                lesson={lesson}
+                moduleId={moduleId}
+                courseId={lesson?.module?.courseId}
+              />
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button

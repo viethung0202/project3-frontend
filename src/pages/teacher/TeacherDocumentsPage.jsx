@@ -15,7 +15,8 @@ import {
   EyeOff,
   Lock,
   Trash2,
-  X,
+  MessageSquare,
+  ExternalLink,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,16 +35,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   useDocuments,
-  useReviewDocument,
-  useDeleteMyDocumentReview,
+  useFeedbackDocument,
+  useDeleteMyDocumentFeedback,
 } from "@/hooks/useDocuments";
 import useAuthUser from "@/hooks/authHook/useAuthUser";
+import DocumentViewer from "@/components/document/DocumentViewer";
 
 export default function TeacherDocumentsPage() {
   const [search, setSearch] = useState("");
   const queryParams = useMemo(() => (search ? { search } : {}), [search]);
   const { data: documents = [], isLoading } = useDocuments(queryParams);
-  const [viewing, setViewing] = useState(null);
+  const [viewing, setViewing] = useState(null); // for feedback dialog
+  const [previewing, setPreviewing] = useState(null); // for file viewer
 
   return (
     <div className="space-y-5">
@@ -54,7 +57,7 @@ export default function TeacherDocumentsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Học liệu</h1>
         </div>
         <p className="text-sm text-gray-500">
-          Xem và đánh giá học liệu của giáo vụ tải lên
+          Xem và góp ý nội dung học liệu của trung tâm
         </p>
       </div>
 
@@ -92,21 +95,28 @@ export default function TeacherDocumentsPage() {
               key={doc.id}
               doc={doc}
               onOpen={() => setViewing(doc)}
+              onView={() => setPreviewing(doc)}
             />
           ))}
         </div>
       )}
 
-      <ReviewDialog
+      <FeedbackDialog
         document={viewing}
         open={!!viewing}
         onOpenChange={(o) => !o && setViewing(null)}
+      />
+
+      <DocumentViewer
+        document={previewing}
+        open={!!previewing}
+        onOpenChange={(o) => !o && setPreviewing(null)}
       />
     </div>
   );
 }
 
-function DocumentCard({ doc, onOpen }) {
+function DocumentCard({ doc, onOpen, onView }) {
   const ext = (doc.fileType || "").toLowerCase();
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -159,34 +169,52 @@ function DocumentCard({ doc, onOpen }) {
 
         <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <span>{formatDate(doc.createdAt)}</span>
-          {doc.reviewCount > 0 ? (
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              <span className="font-medium text-gray-700">{doc.avgRating}</span>
-              <span>({doc.reviewCount})</span>
-            </div>
-          ) : (
-            <span className="italic">Chưa có đánh giá</span>
-          )}
+          <div className="flex items-center gap-3">
+            {doc.reviewCount > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <span className="font-medium text-gray-700">{doc.avgRating}</span>
+                <span>({doc.reviewCount})</span>
+              </span>
+            )}
+            {doc.feedbackCount > 0 && (
+              <span className="inline-flex items-center gap-1 text-blue-600">
+                <MessageSquare className="h-3 w-3" />
+                <span className="font-medium">{doc.feedbackCount}</span>
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-2">
-          <Button asChild size="sm" variant="outline" className="flex-1">
-            <a href={doc.fileUrl} target="_blank" rel="noreferrer">
-              <Eye className="h-3.5 w-3.5 mr-1.5" />
-              Xem
+          <Button size="sm" variant="outline" className="flex-1" onClick={onView}>
+            <Eye className="h-3.5 w-3.5 mr-1.5" />
+            Xem
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            title="Mở trong tab mới"
+          >
+            <a
+              href={`/documents/${doc.id}/view`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </Button>
           {doc.allowDownload && (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild size="sm" variant="outline" title="Tải về">
               <a href={doc.fileUrl} download>
                 <Download className="h-3.5 w-3.5" />
               </a>
             </Button>
           )}
           <Button size="sm" onClick={onOpen}>
-            <Star className="h-3.5 w-3.5 mr-1.5" />
-            Đánh giá
+            <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
+            Góp ý
           </Button>
         </div>
       </CardContent>
@@ -194,46 +222,47 @@ function DocumentCard({ doc, onOpen }) {
   );
 }
 
-function ReviewDialog({ document: doc, open, onOpenChange }) {
+function FeedbackDialog({ document: doc, open, onOpenChange }) {
   const { authUser } = useAuthUser();
-  const myReview = useMemo(
-    () => doc?.reviews?.find((r) => r.teacher?.id === authUser?.id),
+  const myFeedback = useMemo(
+    () => doc?.feedbacks?.find((f) => f.teacher?.id === authUser?.id),
     [doc, authUser],
   );
 
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
-  const [comment, setComment] = useState("");
+  const [content, setContent] = useState("");
 
   useMemo(() => {
     if (open) {
-      setRating(myReview?.rating || 0);
-      setHover(0);
-      setComment(myReview?.comment || "");
+      setContent(myFeedback?.content || "");
     }
-  }, [open, myReview]);
+  }, [open, myFeedback]);
 
-  const reviewMutation = useReviewDocument();
-  const deleteMutation = useDeleteMyDocumentReview();
+  const feedbackMutation = useFeedbackDocument();
+  const deleteMutation = useDeleteMyDocumentFeedback();
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (rating < 1 || rating > 5) return;
-    reviewMutation.mutate(
-      { documentId: doc.id, rating, comment },
+    const text = content.trim();
+    if (!text) return;
+    feedbackMutation.mutate(
+      { documentId: doc.id, content: text },
       { onSuccess: () => onOpenChange(false) },
     );
   };
 
   if (!doc) return null;
 
+  const otherFeedbacks = (doc.feedbacks || []).filter(
+    (f) => f.teacher?.id !== authUser?.id,
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-amber-500" />
-            Đánh giá học liệu
+            <MessageSquare className="h-5 w-5 text-blue-600" />
+            Góp ý nội dung học liệu
           </DialogTitle>
           <DialogDescription className="line-clamp-2">
             {doc.title}
@@ -241,74 +270,54 @@ function ReviewDialog({ document: doc, open, onOpenChange }) {
         </DialogHeader>
 
         {/* Tổng quan */}
-        <div className="p-3 rounded-lg border bg-gradient-to-br from-amber-50 to-white flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-500">Điểm trung bình</p>
-            {doc.reviewCount > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-amber-600">
-                  {doc.avgRating}
-                </span>
-                <span className="text-xs text-gray-500">/ 5</span>
-              </div>
-            ) : (
-              <span className="text-sm text-gray-400">Chưa có đánh giá</span>
-            )}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 rounded-lg border bg-blue-50/50">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1">
+              <MessageSquare className="h-3.5 w-3.5" />
+              Góp ý từ giáo viên
+            </div>
+            <p className="text-xl font-bold text-blue-700">
+              {doc.feedbackCount || 0}
+            </p>
           </div>
-          <Badge variant="outline">
-            {doc.reviewCount} đánh giá
-          </Badge>
+          <div className="p-3 rounded-lg border bg-amber-50/50">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1">
+              <Star className="h-3.5 w-3.5" />
+              Đánh giá từ học sinh
+            </div>
+            <p className="text-xl font-bold text-amber-600">
+              {doc.avgRating != null ? `${doc.avgRating} / 5` : "—"}
+              <span className="text-xs font-normal text-gray-500 ml-1">
+                ({doc.reviewCount || 0})
+              </span>
+            </p>
+          </div>
         </div>
 
-        {/* Form đánh giá của tôi */}
+        {/* Form góp ý */}
         <form onSubmit={onSubmit} className="space-y-3">
           <div>
-            <Label className="mb-2 block">
-              Đánh giá của bạn{myReview && " (cập nhật)"}
+            <Label htmlFor="feedback-content">
+              Góp ý của bạn{myFeedback && " (cập nhật)"}
             </Label>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((n) => {
-                const active = (hover || rating) >= n;
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setRating(n)}
-                    onMouseEnter={() => setHover(n)}
-                    onMouseLeave={() => setHover(0)}
-                    className="p-0.5"
-                  >
-                    <Star
-                      className={`h-7 w-7 transition-colors ${
-                        active
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-              {rating > 0 && (
-                <span className="ml-2 text-sm font-medium text-gray-700">
-                  {rating}/5
-                </span>
-              )}
+            <Textarea
+              id="feedback-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Nội dung tài liệu có chỗ nào cần chỉnh sửa, bổ sung hay làm rõ hơn không?"
+              rows={4}
+              maxLength={2000}
+            />
+            <div className="flex justify-between mt-1">
+              <p className="text-xs text-gray-500">
+                Góp ý của giáo viên giúp giáo vụ cải thiện chất lượng học liệu.
+              </p>
+              <p className="text-xs text-gray-400">{content.length}/2000</p>
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="review-comment">Nhận xét (tuỳ chọn)</Label>
-            <Textarea
-              id="review-comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Chia sẻ cảm nhận của bạn về học liệu..."
-              rows={3}
-            />
-          </div>
-
           <DialogFooter className="gap-2">
-            {myReview && (
+            {myFeedback && (
               <Button
                 type="button"
                 variant="outline"
@@ -321,40 +330,32 @@ function ReviewDialog({ document: doc, open, onOpenChange }) {
                 disabled={deleteMutation.isPending}
               >
                 <Trash2 className="h-4 w-4 mr-1.5" />
-                Xoá đánh giá
+                Xoá góp ý
               </Button>
             )}
             <Button
               type="submit"
-              disabled={rating < 1 || reviewMutation.isPending}
+              disabled={!content.trim() || feedbackMutation.isPending}
             >
-              {reviewMutation.isPending
+              {feedbackMutation.isPending
                 ? "Đang lưu..."
-                : myReview
+                : myFeedback
                 ? "Cập nhật"
-                : "Gửi đánh giá"}
+                : "Gửi góp ý"}
             </Button>
           </DialogFooter>
         </form>
 
-        {/* Đánh giá của người khác */}
-        {doc.reviews && doc.reviews.length > 0 && (
+        {/* Góp ý của giáo viên khác */}
+        {otherFeedbacks.length > 0 && (
           <div className="border-t pt-3">
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              Đánh giá khác ({doc.reviews.filter((r) => r.teacher?.id !== authUser?.id).length})
+              Góp ý từ giáo viên khác ({otherFeedbacks.length})
             </p>
             <div className="space-y-2">
-              {doc.reviews
-                .filter((r) => r.teacher?.id !== authUser?.id)
-                .map((r) => (
-                  <ReviewItem key={r.id} review={r} />
-                ))}
-              {doc.reviews.filter((r) => r.teacher?.id !== authUser?.id)
-                .length === 0 && (
-                <p className="text-xs text-gray-500 italic">
-                  Chưa có giáo viên khác đánh giá.
-                </p>
-              )}
+              {otherFeedbacks.map((f) => (
+                <FeedbackItem key={f.id} feedback={f} />
+              ))}
             </div>
           </div>
         )}
@@ -363,8 +364,8 @@ function ReviewDialog({ document: doc, open, onOpenChange }) {
   );
 }
 
-function ReviewItem({ review }) {
-  const initials = (review.teacher?.fullName || "?")
+function FeedbackItem({ feedback }) {
+  const initials = (feedback.teacher?.fullName || "?")
     .split(" ")
     .map((s) => s[0])
     .slice(-2)
@@ -373,34 +374,18 @@ function ReviewItem({ review }) {
   return (
     <div className="flex gap-3 p-2.5 rounded-lg border bg-white">
       <Avatar className="h-8 w-8 flex-shrink-0">
-        <AvatarImage src={review.teacher?.avatar} />
+        <AvatarImage src={feedback.teacher?.avatar} />
         <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
           {initials}
         </AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium truncate">
-            {review.teacher?.fullName}
-          </span>
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <Star
-                key={n}
-                className={`h-3 w-3 ${
-                  n <= review.rating
-                    ? "fill-amber-400 text-amber-400"
-                    : "text-gray-200"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-        {review.comment && (
-          <p className="text-sm text-gray-600 mt-1">{review.comment}</p>
-        )}
+        <p className="text-sm font-medium">{feedback.teacher?.fullName}</p>
+        <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
+          {feedback.content}
+        </p>
         <p className="text-[11px] text-gray-400 mt-1">
-          {formatDate(review.createdAt)}
+          {formatDate(feedback.createdAt)}
         </p>
       </div>
     </div>

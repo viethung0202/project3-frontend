@@ -14,6 +14,7 @@ import {
   Award,
   ExternalLink,
   Trophy,
+  FileText,
 } from "lucide-react";
 import { useCourseDetail } from "@/hooks/useCourses";
 import { useStudentCourses } from "@/hooks/useStudent";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/api";
 import { EVAL_GRADES } from "@/utils/constants";
 import CourseLeaderboard from "@/components/course/CourseLeaderboard";
+import CourseDocumentsSection from "@/components/document/CourseDocumentsSection";
 
 export default function StudentCourseDetailPage() {
   const { id } = useParams();
@@ -132,6 +134,10 @@ export default function StudentCourseDetailPage() {
                 ? "🎉 Bạn đã hoàn thành khóa học!"
                 : `Đang học · còn ${100 - Math.round(progress)}% nữa`}
           </p>
+          <p className="text-[11px] text-gray-400 mt-1 italic">
+            Tiến độ tính theo: lessons đã đánh dấu hoàn thành + quizzes đã đạt
+            điểm pass (best score ≥ passing score).
+          </p>
         </CardContent>
       </Card>
 
@@ -235,6 +241,13 @@ export default function StudentCourseDetailPage() {
           Nội dung khóa học
         </TabBtn>
         <TabBtn
+          active={tab === "documents"}
+          onClick={() => setTab("documents")}
+          icon={FileText}
+        >
+          Tài liệu
+        </TabBtn>
+        <TabBtn
           active={tab === "leaderboard"}
           onClick={() => setTab("leaderboard")}
           icon={Trophy}
@@ -244,6 +257,10 @@ export default function StudentCourseDetailPage() {
       </div>
 
       {tab === "leaderboard" && <CourseLeaderboard courseId={id} />}
+
+      {tab === "documents" && (
+        <CourseDocumentsSection courseId={id} role="STUDENT" />
+      )}
 
       {/* Modules */}
       {tab === "modules" && (

@@ -18,6 +18,7 @@ import { useCourseTeachers } from "@/hooks/useCourseTeachers";
 import { useTeacherCourseEnrollments } from "@/hooks/useTeacher";
 import { COURSE_LEVELS, COURSE_STATUS } from "@/utils/constants";
 import CourseLeaderboard from "@/components/course/CourseLeaderboard";
+import CourseDocumentsSection from "@/components/document/CourseDocumentsSection";
 
 const statusStyles = {
   DRAFT: "bg-gray-100 text-gray-700",
@@ -215,6 +216,13 @@ export default function TeacherCourseDetailPage() {
           Học sinh
         </TabBtn>
         <TabBtn
+          active={tab === "documents"}
+          onClick={() => setTab("documents")}
+          icon={FileText}
+        >
+          Tài liệu
+        </TabBtn>
+        <TabBtn
           active={tab === "leaderboard"}
           onClick={() => setTab("leaderboard")}
           icon={Trophy}
@@ -224,6 +232,10 @@ export default function TeacherCourseDetailPage() {
       </div>
 
       {tab === "leaderboard" && <CourseLeaderboard courseId={course.id} />}
+
+      {tab === "documents" && (
+        <CourseDocumentsSection courseId={course.id} role="TEACHER" />
+      )}
 
       {/* Students */}
       {tab === "students" && (

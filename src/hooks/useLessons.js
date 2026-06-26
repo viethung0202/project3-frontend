@@ -5,6 +5,8 @@ import {
   createLesson,
   updateLesson,
   deleteLesson,
+  attachLessonDocument,
+  detachLessonDocument,
 } from "@/lib/api";
 
 const invalidate = (queryClient, moduleId) => {
@@ -57,5 +59,33 @@ export const useDeleteLesson = (moduleId) => {
     },
     onError: (err) =>
       toast.error(err?.response?.data?.message || "Xóa thất bại"),
+  });
+};
+
+export const useAttachLessonDocument = (moduleId) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: attachLessonDocument,
+    onSuccess: (res) => {
+      if (moduleId) invalidate(queryClient, moduleId);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      toast.success(res?.message || "Đã gắn tài liệu");
+    },
+    onError: (err) =>
+      toast.error(err?.response?.data?.message || "Gắn tài liệu thất bại"),
+  });
+};
+
+export const useDetachLessonDocument = (moduleId) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: detachLessonDocument,
+    onSuccess: (res) => {
+      if (moduleId) invalidate(queryClient, moduleId);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      toast.success(res?.message || "Đã gỡ tài liệu");
+    },
+    onError: (err) =>
+      toast.error(err?.response?.data?.message || "Gỡ thất bại"),
   });
 };

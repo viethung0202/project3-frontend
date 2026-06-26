@@ -8,6 +8,8 @@ import {
   deleteDocument,
   reviewDocument,
   deleteMyDocumentReview,
+  feedbackDocument,
+  deleteMyDocumentFeedback,
 } from "@/lib/api";
 
 export const useDocuments = (params = {}) => {
@@ -92,5 +94,33 @@ export const useDeleteMyDocumentReview = () => {
     },
     onError: (err) =>
       toast.error(err?.response?.data?.message || "Xóa đánh giá thất bại"),
+  });
+};
+
+export const useFeedbackDocument = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: feedbackDocument,
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.invalidateQueries({ queryKey: ["document"] });
+      toast.success(res?.message || "Đã lưu góp ý");
+    },
+    onError: (err) =>
+      toast.error(err?.response?.data?.message || "Lưu góp ý thất bại"),
+  });
+};
+
+export const useDeleteMyDocumentFeedback = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteMyDocumentFeedback,
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.invalidateQueries({ queryKey: ["document"] });
+      toast.success(res?.message || "Đã xóa góp ý");
+    },
+    onError: (err) =>
+      toast.error(err?.response?.data?.message || "Xóa góp ý thất bại"),
   });
 };

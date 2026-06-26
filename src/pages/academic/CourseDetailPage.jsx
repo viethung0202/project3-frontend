@@ -12,6 +12,7 @@ import {
 import CourseTeachersSection from "@/components/course/CourseTeachersSection";
 import ModuleFormDialog from "@/components/module/ModuleFormDialog";
 import DeleteModuleDialog from "@/components/module/DeleteModuleDialog";
+import CourseDocumentsSection from "@/components/document/CourseDocumentsSection";
 import {
   ChevronLeft,
   Pencil,
@@ -197,6 +198,9 @@ export default function CourseDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Documents section */}
+      <CourseDocumentsSection courseId={id} role="ACADEMIC_STAFF" />
 
       <ModuleFormDialog
         courseId={id}

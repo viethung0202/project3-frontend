@@ -11,11 +11,16 @@ import {
   Presentation,
   FileType,
   BookOpen,
+  Star,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -23,8 +28,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDocuments } from "@/hooks/useDocuments";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  useDocuments,
+  useReviewDocument,
+  useDeleteMyDocumentReview,
+} from "@/hooks/useDocuments";
 import { useStudentCourses } from "@/hooks/useStudent";
+import useAuthUser from "@/hooks/authHook/useAuthUser";
+import DocumentViewer from "@/components/document/DocumentViewer";
 
 export default function StudentDocumentsPage() {
   const [search, setSearch] = useState("");
@@ -39,6 +59,8 @@ export default function StudentDocumentsPage() {
 
   const { data: documents = [], isLoading } = useDocuments(queryParams);
   const { data: myCourses = [] } = useStudentCourses();
+  const [reviewing, setReviewing] = useState(null);
+  const [viewing, setViewing] = useState(null);
 
   return (
     <div className="space-y-5">
@@ -103,15 +125,32 @@ export default function StudentDocumentsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map((doc) => (
-            <DocumentCard key={doc.id} doc={doc} />
+            <DocumentCard
+              key={doc.id}
+              doc={doc}
+              onReview={() => setReviewing(doc)}
+              onView={() => setViewing(doc)}
+            />
           ))}
         </div>
       )}
+
+      <ReviewDialog
+        document={reviewing}
+        open={!!reviewing}
+        onOpenChange={(o) => !o && setReviewing(null)}
+      />
+
+      <DocumentViewer
+        document={viewing}
+        open={!!viewing}
+        onOpenChange={(o) => !o && setViewing(null)}
+      />
     </div>
   );
 }
 
-function DocumentCard({ doc }) {
+function DocumentCard({ doc, onReview, onView }) {
   const ext = (doc.fileType || "").toLowerCase();
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -149,19 +188,38 @@ function DocumentCard({ doc }) {
           </p>
         )}
 
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <span>{formatDate(doc.createdAt)}</span>
+          {doc.reviewCount > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+              <span className="font-medium text-gray-700">{doc.avgRating}</span>
+              <span>({doc.reviewCount})</span>
+            </span>
+          )}
         </div>
 
-        <div className="flex gap-2 mt-3">
-          <Button asChild size="sm" className="flex-1">
-            <a href={doc.fileUrl} target="_blank" rel="noreferrer">
-              <Eye className="h-3.5 w-3.5 mr-1.5" />
-              Xem
+        <div className="flex gap-2">
+          <Button size="sm" className="flex-1" onClick={onView}>
+            <Eye className="h-3.5 w-3.5 mr-1.5" />
+            Xem
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            title="Mở trong tab mới"
+          >
+            <a
+              href={`/documents/${doc.id}/view`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </Button>
           {doc.allowDownload ? (
-            <Button asChild size="sm" variant="outline">
+            <Button asChild size="sm" variant="outline" title="Tải về">
               <a href={doc.fileUrl} download>
                 <Download className="h-3.5 w-3.5" />
               </a>
@@ -176,9 +234,220 @@ function DocumentCard({ doc }) {
               <Download className="h-3.5 w-3.5 opacity-40" />
             </Button>
           )}
+          <Button size="sm" variant="outline" onClick={onReview}>
+            <Star className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
+            Đánh giá
+          </Button>
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function ReviewDialog({ document: doc, open, onOpenChange }) {
+  const { authUser } = useAuthUser();
+  const myReview = useMemo(
+    () => doc?.reviews?.find((r) => r.student?.id === authUser?.id),
+    [doc, authUser],
+  );
+
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+
+  useMemo(() => {
+    if (open) {
+      setRating(myReview?.rating || 0);
+      setHover(0);
+      setComment(myReview?.comment || "");
+    }
+  }, [open, myReview]);
+
+  const reviewMutation = useReviewDocument();
+  const deleteMutation = useDeleteMyDocumentReview();
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (rating < 1 || rating > 5) return;
+    reviewMutation.mutate(
+      { documentId: doc.id, rating, comment },
+      { onSuccess: () => onOpenChange(false) },
+    );
+  };
+
+  if (!doc) return null;
+
+  const otherReviews = (doc.reviews || []).filter(
+    (r) => r.student?.id !== authUser?.id,
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-amber-500" />
+            Đánh giá học liệu
+          </DialogTitle>
+          <DialogDescription className="line-clamp-2">
+            {doc.title}
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Tổng quan */}
+        <div className="p-3 rounded-lg border bg-gradient-to-br from-amber-50 to-white flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-500">Điểm trung bình</p>
+            {doc.reviewCount > 0 ? (
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-amber-600">
+                  {doc.avgRating}
+                </span>
+                <span className="text-xs text-gray-500">/ 5</span>
+              </div>
+            ) : (
+              <span className="text-sm text-gray-400">Chưa có đánh giá</span>
+            )}
+          </div>
+          <Badge variant="outline">{doc.reviewCount || 0} đánh giá</Badge>
+        </div>
+
+        {/* Form đánh giá */}
+        <form onSubmit={onSubmit} className="space-y-3">
+          <div>
+            <Label className="mb-2 block">
+              Đánh giá của bạn{myReview && " (cập nhật)"}
+            </Label>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((n) => {
+                const active = (hover || rating) >= n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setRating(n)}
+                    onMouseEnter={() => setHover(n)}
+                    onMouseLeave={() => setHover(0)}
+                    className="p-0.5"
+                  >
+                    <Star
+                      className={`h-7 w-7 transition-colors ${
+                        active
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+              {rating > 0 && (
+                <span className="ml-2 text-sm font-medium text-gray-700">
+                  {rating}/5
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="review-comment">Nhận xét (tuỳ chọn)</Label>
+            <Textarea
+              id="review-comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Chia sẻ cảm nhận của bạn về tài liệu này..."
+              rows={3}
+            />
+          </div>
+
+          <DialogFooter className="gap-2">
+            {myReview && (
+              <Button
+                type="button"
+                variant="outline"
+                className="text-red-600 border-red-200 hover:bg-red-50"
+                onClick={() =>
+                  deleteMutation.mutate(doc.id, {
+                    onSuccess: () => onOpenChange(false),
+                  })
+                }
+                disabled={deleteMutation.isPending}
+              >
+                <Trash2 className="h-4 w-4 mr-1.5" />
+                Xoá đánh giá
+              </Button>
+            )}
+            <Button
+              type="submit"
+              disabled={rating < 1 || reviewMutation.isPending}
+            >
+              {reviewMutation.isPending
+                ? "Đang lưu..."
+                : myReview
+                ? "Cập nhật"
+                : "Gửi đánh giá"}
+            </Button>
+          </DialogFooter>
+        </form>
+
+        {/* Đánh giá của học sinh khác */}
+        {otherReviews.length > 0 && (
+          <div className="border-t pt-3">
+            <p className="text-sm font-semibold text-gray-700 mb-2">
+              Đánh giá khác ({otherReviews.length})
+            </p>
+            <div className="space-y-2">
+              {otherReviews.map((r) => (
+                <ReviewItem key={r.id} review={r} />
+              ))}
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ReviewItem({ review }) {
+  const initials = (review.student?.fullName || "?")
+    .split(" ")
+    .map((s) => s[0])
+    .slice(-2)
+    .join("")
+    .toUpperCase();
+  return (
+    <div className="flex gap-3 p-2.5 rounded-lg border bg-white">
+      <Avatar className="h-8 w-8 flex-shrink-0">
+        <AvatarImage src={review.student?.avatar} />
+        <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-medium truncate">
+            {review.student?.fullName}
+          </span>
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <Star
+                key={n}
+                className={`h-3 w-3 ${
+                  n <= review.rating
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-gray-200"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        {review.comment && (
+          <p className="text-sm text-gray-600 mt-1">{review.comment}</p>
+        )}
+        <p className="text-[11px] text-gray-400 mt-1">
+          {formatDate(review.createdAt)}
+        </p>
+      </div>
+    </div>
   );
 }
 

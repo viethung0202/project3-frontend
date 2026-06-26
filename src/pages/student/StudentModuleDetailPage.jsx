@@ -182,6 +182,34 @@ export default function StudentModuleDetailPage() {
                     </div>
                   )}
 
+                  {/* Tài liệu đính kèm (LessonDocument many-to-many) */}
+                  {lesson.documents?.length > 0 && (
+                    <div className="mt-3 space-y-1.5">
+                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Tài liệu ({lesson.documents.length})
+                      </p>
+                      {lesson.documents.map((ld) => {
+                        const d = ld.document;
+                        return (
+                          <Link
+                            key={ld.id}
+                            to={`/documents/${d.id}/view`}
+                            target="_blank"
+                            className="flex items-center gap-2 p-2 rounded border bg-white hover:border-blue-300 hover:bg-blue-50/30 transition-colors"
+                          >
+                            <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                            <span className="text-sm flex-1 truncate">
+                              {d.title}
+                            </span>
+                            <span className="text-[10px] uppercase text-gray-500 border rounded px-1.5 py-0.5">
+                              {d.fileType || "file"}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {lesson.pdfUrl && (
                     <div className="mt-3 rounded-lg overflow-hidden border bg-gray-50">
                       <iframe
@@ -193,11 +221,14 @@ export default function StudentModuleDetailPage() {
                     </div>
                   )}
 
-                  {!lesson.videoUrl && !lesson.content && !lesson.pdfUrl && (
-                    <p className="text-xs text-gray-400 italic">
-                      Bài học chưa có nội dung
-                    </p>
-                  )}
+                  {!lesson.videoUrl &&
+                    !lesson.content &&
+                    !lesson.pdfUrl &&
+                    !(lesson.documents?.length > 0) && (
+                      <p className="text-xs text-gray-400 italic">
+                        Bài học chưa có nội dung
+                      </p>
+                    )}
                 </div>
                 );
               })}

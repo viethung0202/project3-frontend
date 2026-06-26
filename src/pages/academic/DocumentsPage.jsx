@@ -19,6 +19,12 @@ import {
   Download,
   Lock,
   Star,
+  MessageSquare,
+  Layers,
+  ChevronDown,
+  ChevronRight,
+  Rows3,
+  FolderTree,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -67,6 +73,7 @@ import {
   useDeleteDocument,
 } from "@/hooks/useDocuments";
 import { useCoursesList } from "@/hooks/useCourses";
+import DocumentViewer from "@/components/document/DocumentViewer";
 
 export default function DocumentsPage() {
   const [search, setSearch] = useState("");
@@ -86,8 +93,27 @@ export default function DocumentsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [previewing, setPreviewing] = useState(null);
+  const [viewMode, setViewMode] = useState("flat"); // "flat" | "grouped"
 
   const deleteMutation = useDeleteDocument();
+
+  // Group documents by course (cho viewMode = "grouped")
+  const grouped = useMemo(() => {
+    const map = new Map();
+    for (const doc of documents) {
+      const key = doc.courseId || "__none__";
+      const courseTitle = doc.course?.title || "Tài liệu không gắn khóa học";
+      if (!map.has(key)) map.set(key, { courseId: key, courseTitle, docs: [] });
+      map.get(key).docs.push(doc);
+    }
+    // Sort: courses with title alphabetically, "none" last
+    return Array.from(map.values()).sort((a, b) => {
+      if (a.courseId === "__none__") return 1;
+      if (b.courseId === "__none__") return -1;
+      return a.courseTitle.localeCompare(b.courseTitle);
+    });
+  }, [documents]);
 
   return (
     <div className="space-y-5">
@@ -116,7 +142,7 @@ export default function DocumentsPage() {
         </Button>
       </div>
 
-      {/* Filter */}
+      {/* Filter + View toggle */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-3">
@@ -143,11 +169,58 @@ export default function DocumentsPage() {
                 ))}
               </SelectContent>
             </Select>
+            <div className="inline-flex rounded-md border bg-gray-50 p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode("flat")}
+                className={`inline-flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm transition-colors ${
+                  viewMode === "flat"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                title="Xem dạng bảng"
+              >
+                <Rows3 className="h-4 w-4" />
+                Phẳng
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("grouped")}
+                className={`inline-flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm transition-colors ${
+                  viewMode === "grouped"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                title="Nhóm theo khóa học"
+              >
+                <FolderTree className="h-4 w-4" />
+                Theo khóa học
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Grouped view */}
+      {!isLoading && documents.length > 0 && viewMode === "grouped" && (
+        <div className="space-y-3">
+          {grouped.map((g) => (
+            <GroupedCourseSection
+              key={g.courseId}
+              group={g}
+              onEdit={(doc) => {
+                setEditing(doc);
+                setDialogOpen(true);
+              }}
+              onDelete={(doc) => setDeleteTarget(doc)}
+              onPreview={(doc) => setPreviewing(doc)}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Table */}
+      {viewMode === "flat" && (
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
@@ -170,7 +243,9 @@ export default function DocumentsPage() {
                   <TableHead>Loại</TableHead>
                   <TableHead>Khóa học</TableHead>
                   <TableHead>Trạng thái</TableHead>
-                  <TableHead>Đánh giá</TableHead>
+                  <TableHead>Lesson</TableHead>
+                  <TableHead>HS đánh giá</TableHead>
+                  <TableHead>GV góp ý</TableHead>
                   <TableHead>Ngày upload</TableHead>
                   <TableHead className="text-right">Hành động</TableHead>
                 </TableRow>
@@ -224,6 +299,29 @@ export default function DocumentsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
+                      {doc.lessons?.length > 0 ? (
+                        <div className="flex flex-col gap-0.5 max-w-[180px]">
+                          {doc.lessons.slice(0, 2).map((ld) => (
+                            <span
+                              key={ld.id}
+                              className="text-xs text-gray-700 truncate inline-flex items-center gap-1"
+                              title={ld.lesson?.title}
+                            >
+                              <Layers className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                              {ld.lesson?.title || "—"}
+                            </span>
+                          ))}
+                          {doc.lessons.length > 2 && (
+                            <span className="text-[10px] text-gray-500">
+                              +{doc.lessons.length - 2} lesson khác
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       {doc.reviewCount > 0 ? (
                         <div className="flex items-center gap-1 text-sm">
                           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
@@ -236,20 +334,28 @@ export default function DocumentsPage() {
                         <span className="text-xs text-gray-400">Chưa có</span>
                       )}
                     </TableCell>
+                    <TableCell>
+                      {doc.feedbackCount > 0 ? (
+                        <div className="flex items-center gap-1 text-sm text-blue-700">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          <span className="font-medium">{doc.feedbackCount}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">Chưa có</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-sm">
                       {formatDate(doc.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center gap-1 justify-end">
-                        <Button size="sm" variant="ghost" asChild>
-                          <a
-                            href={doc.fileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            title="Mở file"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setPreviewing(doc)}
+                          title="Xem file"
+                        >
+                          <ExternalLink className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"
@@ -280,6 +386,7 @@ export default function DocumentsPage() {
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* Form dialog */}
       <DocumentFormDialog
@@ -287,6 +394,13 @@ export default function DocumentsPage() {
         onOpenChange={setDialogOpen}
         editing={editing}
         courses={courses}
+      />
+
+      {/* File viewer */}
+      <DocumentViewer
+        document={previewing}
+        open={!!previewing}
+        onOpenChange={(o) => !o && setPreviewing(null)}
       />
 
       {/* Delete confirm */}
@@ -598,4 +712,176 @@ function formatDate(d) {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+// ====== GROUPED VIEW — accordion theo khóa học ======
+function GroupedCourseSection({ group, onEdit, onDelete, onPreview }) {
+  const [open, setOpen] = useState(true);
+  const isNone = group.courseId === "__none__";
+
+  return (
+    <Card>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-2 p-4 hover:bg-gray-50 transition-colors text-left"
+      >
+        {open ? (
+          <ChevronDown className="h-4 w-4 text-gray-500" />
+        ) : (
+          <ChevronRight className="h-4 w-4 text-gray-500" />
+        )}
+        <div
+          className={`h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+            isNone ? "bg-gray-100 text-gray-500" : "bg-blue-50 text-blue-600"
+          }`}
+        >
+          <FolderTree className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-900 truncate">
+            {group.courseTitle}
+          </p>
+          <p className="text-xs text-gray-500">
+            {group.docs.length} tài liệu
+          </p>
+        </div>
+      </button>
+
+      {open && (
+        <div className="border-t">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tên</TableHead>
+                <TableHead>Loại</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Lesson</TableHead>
+                <TableHead>HS đánh giá</TableHead>
+                <TableHead>GV góp ý</TableHead>
+                <TableHead className="text-right">Hành động</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {group.docs.map((doc) => (
+                <TableRow key={doc.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FileIcon ext={doc.fileType} />
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{doc.title}</p>
+                        {doc.description && (
+                          <p className="text-xs text-gray-500 truncate max-w-md">
+                            {doc.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="uppercase text-xs">
+                      {doc.fileType || "file"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {doc.isPublished ? (
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-[10px] h-5 w-fit">
+                          <Eye className="h-2.5 w-2.5 mr-1" /> Công bố
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-gray-600 text-[10px] h-5 w-fit">
+                          <EyeOff className="h-2.5 w-2.5 mr-1" /> Nội bộ
+                        </Badge>
+                      )}
+                      {!doc.allowDownload && (
+                        <Badge variant="outline" className="border-orange-200 text-orange-700 text-[10px] h-5 w-fit">
+                          <Lock className="h-2.5 w-2.5 mr-1" /> Chỉ xem
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {doc.lessons?.length > 0 ? (
+                      <div className="flex flex-col gap-0.5 max-w-[200px]">
+                        {doc.lessons.slice(0, 2).map((ld) => (
+                          <span
+                            key={ld.id}
+                            className="text-xs text-gray-700 truncate inline-flex items-center gap-1"
+                            title={ld.lesson?.title}
+                          >
+                            <Layers className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                            {ld.lesson?.title || "—"}
+                          </span>
+                        ))}
+                        {doc.lessons.length > 2 && (
+                          <span className="text-[10px] text-gray-500">
+                            +{doc.lessons.length - 2} khác
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {doc.reviewCount > 0 ? (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                        <span className="font-medium">{doc.avgRating}</span>
+                        <span className="text-xs text-gray-500">
+                          ({doc.reviewCount})
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {doc.feedbackCount > 0 ? (
+                      <div className="flex items-center gap-1 text-sm text-blue-700">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        <span className="font-medium">{doc.feedbackCount}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center gap-1 justify-end">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onPreview(doc)}
+                        title="Xem file"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onEdit(doc)}
+                        title="Sửa"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => onDelete(doc)}
+                        title="Xóa"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Card>
+  );
 }
