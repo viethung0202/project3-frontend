@@ -1,16 +1,57 @@
-# React + Vite
+# Project3 Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Ứng dụng web học tập trực tuyến, xây dựng bằng React + Vite. Hỗ trợ nhiều vai trò người dùng: admin, giáo viên (teacher), học viên (student), nhân viên (staff).
 
-Currently, two official plugins are available:
+## Công nghệ sử dụng
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** + **Vite** – nền tảng frontend, HMR nhanh
+- **React Router** – điều hướng trang
+- **TanStack Query** – quản lý dữ liệu bất đồng bộ
+- **React Hook Form** + **Zod** – xử lý và validate form
+- **Tailwind CSS** – styling
+- **Axios** – gọi API
+- **shadcn/ui**, **lucide-react** – bộ component UI
 
-## React Compiler
+## Cấu trúc thư mục
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── assets/       # Hình ảnh, tài nguyên tĩnh
+├── components/   # Component dùng chung
+├── hooks/        # Custom hooks
+├── lib/          # Cấu hình thư viện (axios, query client...)
+├── pages/        # Các trang theo vai trò (admin, teacher, student, staff, academic, public)
+└── utils/        # Hàm tiện ích
+```
 
-## Expanding the ESLint configuration
+## Bắt đầu
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Cài đặt các gói phụ thuộc:
+
+```bash
+npm install
+```
+
+Chạy môi trường phát triển:
+
+```bash
+npm run dev
+```
+
+Build cho production:
+
+```bash
+npm run build
+```
+
+Xem thử bản build:
+
+```bash
+npm run preview
+```
+
+Kiểm tra lỗi lint:
+
+```bash
+npm run lint
+```
